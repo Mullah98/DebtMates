@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { Auth } from '@supabase/auth-ui-react';
+// import { Auth } from '@supabase/auth-ui-react';
 import { supabase } from '../supabaseClient';
-import { ThemeSupa } from '@supabase/auth-ui-shared'
+// import { ThemeSupa } from '@supabase/auth-ui-shared'
 import type { Session } from '@supabase/supabase-js';
+import LoginPage from './components/LoginPage';
 
 
 function App() {
   const [session, setSession] = useState<Session | null>(null); //session can either be a Supabase Session object(when logged in) or null (when logged out)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      setLoading(false)
     })
     const {
       data: { subscription },
@@ -28,11 +31,15 @@ function App() {
     }
   }
 
+  if (loading) {
+    return (
+      <div>Signing you in...</div>
+    )
+  }
+
   if (!session) {
     return (
-      <>
-        <Auth supabaseClient={supabase} providers={['google']} appearance={{ theme: ThemeSupa }} />
-      </>
+        <LoginPage />
     )
   } else {
     return (
