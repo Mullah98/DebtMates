@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 // import { ThemeSupa } from '@supabase/auth-ui-shared'
 import type { Session } from '@supabase/supabase-js';
 import LoginPage from './components/LoginPage';
+import Dashboard from './components/Dashboard';
 
 
 function App() {
@@ -37,18 +38,11 @@ function App() {
     )
   }
 
-  if (!session) {
-    return (
-        <LoginPage />
-    )
-  } else {
-    return (
-    <div>
-      <h2>Welcome {session?.user?.user_metadata?.full_name}.</h2>
-      <button onClick={signOut}>Sign out</button>
-    </div>
-  )
-  }
-}
+  return !session ? (
+    <LoginPage />
+  ) : (
+    <Dashboard session={session} signOut={signOut} />
+  )}
+
 
 export default App
