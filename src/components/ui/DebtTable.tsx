@@ -1,7 +1,7 @@
 
 function DebtTable() {
   return (
-    <div className="bg-gray">
+    <div className="bg-green p-4 rounded-lg shadow">
       Table
     </div>
   )
