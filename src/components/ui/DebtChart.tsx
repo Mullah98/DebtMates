@@ -2,9 +2,9 @@
 
 import { TrendingUp } from "lucide-react"
 import { LabelList, Pie, PieChart } from "recharts"
-import type { ChartConfig } from "@/components/charts/chart"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/charts/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/charts/chart"
+import type { ChartConfig } from "@/components/shadcn-ui/chart"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/shadcn-ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/shadcn-ui/chart"
 
 const chartData = [
   { status: "paid", amount: 300, fill: "#4ade80" },
@@ -58,7 +58,7 @@ function DebtChart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          You have $200 left to pay <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
           Based on financial data from the last 6 months

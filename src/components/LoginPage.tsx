@@ -36,7 +36,7 @@ function LoginPage() {
     <p className="text-lg mb-8 text-gray-600 max-w-md">
       Request. Confirm. Settle.
     </p>
-    <img src={heroImage} alt="Welcome" className="max-w-full max-h-96 object-contain rounded-xl" />
+    <img src={heroImage} alt="Welcome" className="max-w-full max-h-88 object-contain rounded-xl" />
   </div>
   </div>
   );

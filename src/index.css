@@ -74,7 +74,7 @@ button {
 }
 button:hover {
   border-color: darkorange;
-  color: white;
+  /* color: white; */
 }
 button:focus,
 button:focus-visible {

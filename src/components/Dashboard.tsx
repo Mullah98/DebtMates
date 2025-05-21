@@ -24,7 +24,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
   return (
     <div>
       <div className="sticky top-0 p-6 flex items-center justify-between space-x-4 ">
-        <h1 className='text-6xl font-bold text-gray-800 flex'>
+        <h1 className='text-5xl font-bold text-gray-800 flex'>
         {greeting.split('').map((char, i) => (
           <motion.span
             key={i}
