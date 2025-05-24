@@ -7,39 +7,60 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/shadcn-ui/input"
 import { Button } from "@/components/shadcn-ui/button"
 import { Textarea } from "@/components/shadcn-ui/textarea"
+import { useState } from "react"
+import { supabase } from "../../../supabaseClient"
 // import { format } from "date-fns"
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  borrower_name: z.string().min(1, "Name is required"),
+  borrower_id: z.string().uuid().optional(),
   amount: z.string().min(1, "Amount is required"),
   description: z.string().min(1, "Description is required"),
   due_date: z.string().min(1, "Due date is required"),
   status: z.enum(["pending", "paid", "overdue"]),
 })
 
+type Debt = z.infer<typeof formSchema>
+
   function DebtForm() {
+  const [allDebts, setAllDebts] = useState<Debt[]>([]);
+    
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
       defaultValues: {
-      name: "",
-      amount: "",
+      borrower_name: "",
+      amount: '',
       description: "",
       due_date: "",
       status: "pending",
     },
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values)
-    // TODO: Send to Supabase here
+  const addDebt = async (newDebt: Debt) => {
+    // setAllDebts(previousDebts => [...previousDebts, newDebt])
+    // console.log('New debt:', newDebt);
+    // console.log('All debts:', allDebts);
+    const { data, error } = await supabase.from("debts").insert([newDebt])
+    if (error) {
+      console.error("Error adding new debt", error)
+    } else {
+      console.log("Debt successfully added", data)
+      setAllDebts(prev => [...prev, newDebt])
+      form.reset()
+    }
   }
+
+  console.log(allDebts);
+  
+
+  
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 p-4 rounded-lg shadow space-y-4">
+      <form onSubmit={form.handleSubmit(addDebt)} className="flex-1 p-4 rounded-lg shadow space-y-4">
       <FormField
           control={form.control}
-          name="name"
+          name="borrower_name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
