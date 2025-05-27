@@ -29,7 +29,7 @@ type Debt = z.infer<typeof formSchema>
     resolver: zodResolver(formSchema),
       defaultValues: {
       borrower_name: "",
-      amount: '',
+      amount: "",
       description: "",
       due_date: "",
       status: "pending",
@@ -37,9 +37,7 @@ type Debt = z.infer<typeof formSchema>
   })
 
   const addDebt = async (newDebt: Debt) => {
-    // setAllDebts(previousDebts => [...previousDebts, newDebt])
-    // console.log('New debt:', newDebt);
-    // console.log('All debts:', allDebts);
+
     const { data, error } = await supabase.from("debts").insert([newDebt])
     if (error) {
       console.error("Error adding new debt", error)
@@ -50,11 +48,8 @@ type Debt = z.infer<typeof formSchema>
     }
   }
 
-  console.log(allDebts);
+  // console.log(allDebts);
   
-
-  
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(addDebt)} className="flex-1 p-4 rounded-lg shadow space-y-4">

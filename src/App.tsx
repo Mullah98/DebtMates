@@ -13,17 +13,47 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    })
+      setSession(session);
+      setLoading(false);
+    });
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+
+      if (session?.user) {
+          const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id);
+
+          const existingProfile = profiles?.[0];
+
+          if (!existingProfile && !error) {
+            const fullName = session.user.user_metadata?.full_name || '';
+            const [firstName, lastName] = fullName.split(' ');
+
+            const { error: insertError } = await supabase.from('profiles').insert({
+              id: session.user.id,
+              first_name: firstName || '',
+              last_name: lastName || '',
+            });
+
+            if (insertError) {
+              console.error('Insert failed', insertError);
+            }
+          }
+      }
+
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -32,11 +62,12 @@ function App() {
     }
   }
 
-  if (loading) {
-    return (
-      <div>Signing you in...</div>
-    )
-  }
+
+    if (loading) {
+      return (
+        <div>Signing you in...</div>
+      )
+    }
 
   return !session ? (
     <LoginPage />
