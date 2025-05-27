@@ -42,7 +42,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
 
       <div className='flex flex-col md:flex-row gap-6'>
         <DebtChart />
-        <DebtForm />
+        <DebtForm session={session} />
       </div>
 
       <div>
