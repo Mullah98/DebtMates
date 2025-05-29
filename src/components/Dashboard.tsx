@@ -46,7 +46,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
       </div>
 
       <div>
-        {/* <DebtTable /> */}
+        <DebtTable />
       </div>
     </div>
   )

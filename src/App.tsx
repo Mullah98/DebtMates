@@ -22,7 +22,8 @@ function App() {
 
       if (session?.user) { // Checking if current user is in the profiles table
         const { data: existing_profile, error } = await supabase
-        .from('profiles').select('id')
+        .from('profiles')
+        .select('id')
         .eq('id', session.user.id)
         .maybeSingle();
 
