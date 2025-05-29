@@ -51,7 +51,6 @@ function DebtForm({ session }: DebtFormProps) {
       if (error) {
         console.error("Error adding new debt", error)
       } else {
-        console.log(newDebt);
         setAllDebts(prev => [...prev, newDebt])
         form.reset();
       }
