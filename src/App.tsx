@@ -45,6 +45,9 @@ function App() {
   }, [])
 
   const signOut = async () => {
+    console.log('Clicked sign out')
+    localStorage.clear()
+    window.location.reload()
     const { error } = await supabase.auth.signOut();
     if (error) console.error("Failed to sign out", error)
   }

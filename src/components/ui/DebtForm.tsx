@@ -7,12 +7,12 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/shadcn-ui/input"
 import { Button } from "@/components/shadcn-ui/button"
 import { Textarea } from "@/components/shadcn-ui/textarea"
-import { useState } from "react"
 import { supabase } from "../../../supabaseClient"
 import type { Session } from "@supabase/supabase-js"
 
 // Schema to validate the debt form input
 const formSchema = z.object({
+  id: z.string().uuid().optional(),
   borrower_name: z.string().min(1, "Name is required"),
   borrower_id: z.string().uuid().optional(),
   amount: z.string().min(1, "Amount is required"),
@@ -21,14 +21,14 @@ const formSchema = z.object({
   status: z.enum(["pending", "paid", "overdue"]),
 })
 
-type Debt = z.infer<typeof formSchema>
+export type Debt = z.infer<typeof formSchema>
 
 interface DebtFormProps {
-  session: Session | null
+  session: Session | null;
+  onDebtAdded: () => void;
 }
 
-function DebtForm({ session }: DebtFormProps) {
-  const [allDebts, setAllDebts] = useState<Debt[]>([]);
+function DebtForm({ session, onDebtAdded }: DebtFormProps) {
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,24 +42,24 @@ function DebtForm({ session }: DebtFormProps) {
   })
 
   // Adds new debt entry to Supabase 'debts' table
-  const addDebt = async (newDebt: Debt) => {
+  const addNewDebt = async (newDebt: Debt) => {
     if (session?.user) {
       const { error } = await supabase
       .from("debts")
-      .insert([{...newDebt, lender_id: session.user.id}])
+      .insert([{...newDebt, lender_id: session.user.id}])      
 
       if (error) {
         console.error("Error adding new debt", error)
       } else {
-        setAllDebts(prev => [...prev, newDebt])
-        form.reset();
+        onDebtAdded() // Refreshing the debt list after successfully adding a new debt
+        form.reset()
       }
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(addDebt)} className="flex-1 p-4 rounded-lg shadow space-y-4">
+      <form onSubmit={form.handleSubmit(addNewDebt)} className="flex-1 p-4 rounded-lg shadow space-y-4">
       <FormField
           control={form.control}
           name="borrower_name"
