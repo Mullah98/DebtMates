@@ -7,19 +7,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/shadcn-ui/table"
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectValue } from "@/components/shadcn-ui/select"
 import type { Debt } from "./DebtForm"
+import { supabase } from "../../../supabaseClient"
+// import { useState } from "react"
 
 interface DebtTableProps {
-  allDebts: Debt[]
+  allDebts: Debt[];
+  onDebtAdded: () => void;
 }
 
-function DebtTable({ allDebts }: DebtTableProps) {
+function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
 
   const formatter = new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
-    timeStyle: "short",
     hour12: true
   })
+
+  const updateDebt = async (debt: Debt, newStatus: string) => {
+    const { error } = await supabase
+    .from("debts")
+    .update({ status: newStatus})
+    .eq("id", debt.id)
+
+    if (error) {
+      console.error("Unable to update the debt status", error)
+    } else {
+      onDebtAdded()
+    }
+  }
 
   return (
     <div className="p-4 rounded-lg shadow">
@@ -30,7 +46,7 @@ function DebtTable({ allDebts }: DebtTableProps) {
         <TableHead className="w-[100px]">Name</TableHead>
         <TableHead className="text-right">Amount</TableHead>
         <TableHead className="text-right">Due Date</TableHead>
-        <TableHead className="text-right">Status</TableHead>
+        <TableHead className="text-center">Status</TableHead>
         <TableHead className="text-right">Description</TableHead>
       </TableRow>
     </TableHeader>
@@ -40,7 +56,22 @@ function DebtTable({ allDebts }: DebtTableProps) {
           <TableCell className="px-2 text-left font-medium">{debt.borrower_name}</TableCell>
           <TableCell className="px-2 text-right">${debt.amount}</TableCell>
           <TableCell className="px-2 text-right">{formatter.format(new Date(debt.due_date))}</TableCell>
-          <TableCell className="px-2 text-right">{debt.status}</TableCell>
+          <TableCell className="px-2 text-right">
+          <div className="flex justify-center">
+          <Select value={debt.status} onValueChange={(value) => updateDebt(debt, value)}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Status</SelectLabel>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select> 
+          </div>
+          </TableCell>
           <TableCell className="px-2 text-right">{debt.description}</TableCell>
       </TableRow>
       ))}

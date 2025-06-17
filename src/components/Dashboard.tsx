@@ -12,7 +12,7 @@ interface DashboardProps {
 }
 
 function Dashboard({ session, signOut }: DashboardProps) {
-  const greeting: string = `Welcome ${session?.user?.user_metadata?.full_name.split(" ")[0]}`
+  const greeting: string = `Welcome back, ${session?.user?.user_metadata?.full_name.split(" ")[0]}`
   const [allDebts, setAllDebts] = useState<Debt[]>([])
 
   const letterVariants = {
@@ -66,7 +66,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
       </div>
 
       <div>
-        <DebtTable allDebts={allDebts}/>
+        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts}/>
       </div>
     </div>
   )
