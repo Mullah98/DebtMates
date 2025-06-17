@@ -10,7 +10,6 @@ import {
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectValue } from "@/components/shadcn-ui/select"
 import type { Debt } from "./DebtForm"
 import { supabase } from "../../../supabaseClient"
-// import { useState } from "react"
 
 interface DebtTableProps {
   allDebts: Debt[];
@@ -59,14 +58,30 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
           <TableCell className="px-2 text-right">
           <div className="flex justify-center">
           <Select value={debt.status} onValueChange={(value) => updateDebt(debt, value)}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger className="w-auto">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Status</SelectLabel>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="unpaid">Unpaid</SelectItem>
+                <SelectItem value="paid">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full shadow-md bg-green-500"></span>
+                    Paid
+                  </div>
+                </SelectItem>
+                <SelectItem value="unpaid">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full shadow-md bg-red-500"></span>
+                    Unpaid
+                  </div>
+                </SelectItem>
+                <SelectItem value="pending">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full shadow-md bg-orange-500"></span>
+                    Pending
+                  </div>
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select> 
