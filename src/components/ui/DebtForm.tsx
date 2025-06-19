@@ -18,7 +18,7 @@ const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   description: z.string().min(1, "Description is required"),
   due_date: z.string().min(1, "Due date is required"),
-  status: z.enum(["pending", "paid", "overdue"]),
+  status: z.enum(["pending", "paid", "unpaid"]),
 })
 
 export type Debt = z.infer<typeof formSchema>
@@ -37,7 +37,7 @@ function DebtForm({ session, onDebtAdded }: DebtFormProps) {
       amount: "",
       description: "",
       due_date: "",
-      status: "pending",
+      status: "unpaid",
     },
   })
 
@@ -120,9 +120,9 @@ function DebtForm({ session, onDebtAdded }: DebtFormProps) {
               <FormLabel>Status</FormLabel>
               <FormControl>
                 <select {...field} className="w-full border p-2 rounded-md">
+                  <option value="unpaid">Unpaid</option>
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
-                  <option value="overdue">Overdue</option>
                 </select>
               </FormControl>
               <FormMessage />

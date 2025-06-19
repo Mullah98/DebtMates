@@ -65,19 +65,19 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
               <SelectGroup>
                 <SelectLabel>Status</SelectLabel>
                 <SelectItem value="paid">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-green-500">
                     <span className="w-3 h-3 rounded-full shadow-md bg-green-500"></span>
                     Paid
                   </div>
                 </SelectItem>
                 <SelectItem value="unpaid">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-red-500">
                     <span className="w-3 h-3 rounded-full shadow-md bg-red-500"></span>
                     Unpaid
                   </div>
                 </SelectItem>
                 <SelectItem value="pending">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-orange-500">
                     <span className="w-3 h-3 rounded-full shadow-md bg-orange-500"></span>
                     Pending
                   </div>
