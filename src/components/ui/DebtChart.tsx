@@ -5,21 +5,42 @@ import { LabelList, Pie, PieChart } from "recharts"
 import type { ChartConfig } from "@/components/shadcn-ui/chart"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/shadcn-ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/shadcn-ui/chart"
+import type { Debt } from "./DebtForm"
+import { useEffect } from "react"
 
-const chartData = [
-  { status: "paid", amount: 300, fill: "#4ade80" },
-  { status: "pending", amount: 150, fill: "#facc15" },
-  { status: "owed", amount: 100, fill: "#f87171" },
-]
+interface DebtChartProps {
+  debts: Debt[]
+}
 
-const chartConfig = {
-  paid: { label: "Paid", color: "#4ade80" },
-  pending: { label: "Pending", color: "#facc15" },
-  owed: { label: "Owed", color: "#f87171" },
-} satisfies ChartConfig
+function DebtChart({ debts }: DebtChartProps) {
 
+  const calculateDebtTotals = (debts: Debt[]) => {
+    let paidTotal = 0;
+    let unpaidTotal = 0;
+    let pendingTotal = 0;
 
-function DebtChart() {
+    debts.forEach((debt) => {
+      if (debt.status === 'paid') paidTotal += Number(debt.amount)
+      else if (debt.status === 'unpaid') unpaidTotal += Number(debt.amount)
+      else if (debt.status === 'pending') pendingTotal += Number(debt.amount)
+    });
+    return { paidTotal, unpaidTotal, pendingTotal }
+  }
+  
+  const { paidTotal, unpaidTotal, pendingTotal } = calculateDebtTotals(debts)
+
+  const chartData = [
+    { status: "paid", amount: paidTotal, fill: "#4ade80" },
+    { status: "owed", amount: unpaidTotal, fill: "#f87171" },
+    { status: "pending", amount: pendingTotal, fill: "#facc15" },
+  ]
+  
+  const chartConfig = {
+    paid: { label: "Paid", color: "#4ade80" },
+    pending: { label: "Pending", color: "#facc15" },
+    owed: { label: "Owed", color: "#f87171" },
+  } satisfies ChartConfig
+
   return (
     <Card className="flex-1 flex-col p-4 rounded-lg shadow">
       <CardHeader className="items-center pb-0">
@@ -58,7 +79,7 @@ function DebtChart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          You have $200 left to pay <TrendingUp className="h-4 w-4" />
+          You have ${unpaidTotal} left to pay <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
           Based on financial data from the last 6 months
