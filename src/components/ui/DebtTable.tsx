@@ -10,6 +10,8 @@ import {
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectValue } from "@/components/shadcn-ui/select"
 import type { Debt } from "./DebtForm"
 import { supabase } from "../../../supabaseClient"
+import { FaTrash } from 'react-icons/fa';
+
 
 interface DebtTableProps {
   allDebts: Debt[];
@@ -23,6 +25,7 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
     hour12: true
   })
 
+  //Function to update debt status
   const updateDebt = async (debt: Debt, newStatus: string) => {
     const { error } = await supabase
     .from("debts")
@@ -36,6 +39,20 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
     }
   }
 
+  //Function to delete user debts
+  const deleteDebt = async (debt: Debt) => {    
+    const {error} = await supabase
+    .from("debts")
+    .delete()
+    .eq("id", debt.id)
+
+    if (error) {
+      console.error('Could not delete debt', error)
+    } else {
+      onDebtAdded();
+    }
+  }
+
   return (
     <div className="p-4 rounded-lg shadow">
     <Table>
@@ -46,7 +63,7 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
         <TableHead className="text-right">Amount</TableHead>
         <TableHead className="text-right">Due Date</TableHead>
         <TableHead className="text-center">Status</TableHead>
-        <TableHead className="text-right">Description</TableHead>
+        <TableHead className="text-center">Description</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -87,7 +104,8 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
           </Select> 
           </div>
           </TableCell>
-          <TableCell className="px-2 text-right">{debt.description}</TableCell>
+          <TableCell className="px-2 text-center">{debt.description}</TableCell>
+          <TableCell><button onClick={() => deleteDebt(debt)}><FaTrash color="red" /></button></TableCell>
       </TableRow>
       ))}
     </TableBody>
