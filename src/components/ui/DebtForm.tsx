@@ -9,6 +9,7 @@ import { Button } from "@/components/shadcn-ui/button"
 import { Textarea } from "@/components/shadcn-ui/textarea"
 import { supabase } from "../../../supabaseClient"
 import type { Session } from "@supabase/supabase-js"
+import type { User } from "../Dashboard"
 
 // Schema to validate the debt form input
 const formSchema = z.object({
@@ -26,9 +27,10 @@ export type Debt = z.infer<typeof formSchema>
 interface DebtFormProps {
   session: Session | null;
   onDebtAdded: () => void;
+  allUsers: User[]
 }
 
-function DebtForm({ session, onDebtAdded }: DebtFormProps) {
+function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,6 +58,8 @@ function DebtForm({ session, onDebtAdded }: DebtFormProps) {
       }
     }
   }
+
+  console.log('all users:', allUsers)
 
   return (
     <Form {...form}>

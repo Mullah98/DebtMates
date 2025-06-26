@@ -11,9 +11,16 @@ interface DashboardProps {
     signOut: () => void;
 }
 
+export interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
 function Dashboard({ session, signOut }: DashboardProps) {
   const greeting: string = `Welcome back, ${session?.user?.user_metadata?.full_name.split(" ")[0]}`
   const [allDebts, setAllDebts] = useState<Debt[]>([])
+  const [allUsers, setAllUsers] = useState<User[]>([])
 
   const letterVariants = {
     hidden: { opacity: 0, x: -10 },
@@ -37,9 +44,22 @@ function Dashboard({ session, signOut }: DashboardProps) {
     }
   }
 
+  const fetchAllUsers = async () => {
+    const { data, error } = await supabase.from("profiles").select("*")
+
+    if (data && !error) {
+      setAllUsers(data)
+    } else {
+      console.error("unable to retrieve all user profiles", error)
+    }
+  }
+
   useEffect(() => {
-    fetchAllUserDebts() 
+    fetchAllUserDebts();
+    fetchAllUsers();
   }, [])
+
+  // console.log(allUsers);
   
   return (
     <div>
@@ -62,7 +82,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
 
       <div className='flex flex-col md:flex-row gap-6'>
         <DebtChart debts={allDebts} />
-        <DebtForm session={session} onDebtAdded={fetchAllUserDebts} />
+        <DebtForm session={session} onDebtAdded={fetchAllUserDebts} allUsers={allUsers} />
       </div>
 
       <div>

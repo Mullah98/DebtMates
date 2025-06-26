@@ -25,6 +25,8 @@ interface DebtChartProps {
 }
 
 function DebtChart({ debts }: DebtChartProps) {
+
+  // Function to calculate the total debts for each debt status ('Paid', 'Unpaid', and 'Pending)
   const calculateDebtTotals = (debts: Debt[]) => {
     let paidTotal = 0
     let unpaidTotal = 0
