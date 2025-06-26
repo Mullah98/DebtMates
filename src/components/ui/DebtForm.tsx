@@ -10,6 +10,7 @@ import { Textarea } from "@/components/shadcn-ui/textarea"
 import { supabase } from "../../../supabaseClient"
 import type { Session } from "@supabase/supabase-js"
 import type { User } from "../Dashboard"
+import { useState } from "react"
 
 // Schema to validate the debt form input
 const formSchema = z.object({
@@ -31,6 +32,8 @@ interface DebtFormProps {
 }
 
 function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
+
+  const [searchTerm, setSearchTerm] = useState("")
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,11 +58,15 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
       } else {
         onDebtAdded() // Refreshing the debt list after successfully adding a new debt
         form.reset()
+        setSearchTerm("")
       }
     }
   }
 
-  console.log('all users:', allUsers)
+  // Filter users by first name, case-sensitive match with search term
+  const filteredUsers = allUsers.filter(user => 
+    user.first_name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
     <Form {...form}>
@@ -71,7 +78,30 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-              <Input placeholder="Who is this for?" {...field} />
+              <div>
+                <Input 
+                className="w-full border p-2 rounded-md"
+                placeholder="Who is this for?" {...field}
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  form.setValue("borrower_name", e.target.value)
+                  }} 
+                />
+                {searchTerm && searchTerm.length > 2 && (
+                <ul>
+                  {filteredUsers.map(user => (
+                    <li className="p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 hover:text-orange-400 rounded-lg" key={user.id} onClick={() => {
+                      form.setValue("borrower_id", user.id.toString())
+                      form.setValue("borrower_name", `${user.first_name} ${user.last_name}`)
+                      setSearchTerm(`${user.first_name} ${user.last_name}`)
+                    }}>
+                      {`${user.first_name} ${user.last_name}`}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              </div>
               </FormControl>
               <FormMessage />
             </FormItem>

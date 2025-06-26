@@ -13,8 +13,8 @@ interface DashboardProps {
 
 export interface User {
   id: number;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
 }
 
 function Dashboard({ session, signOut }: DashboardProps) {
@@ -45,7 +45,10 @@ function Dashboard({ session, signOut }: DashboardProps) {
   }
 
   const fetchAllUsers = async () => {
-    const { data, error } = await supabase.from("profiles").select("*")
+    const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .neq("id", session?.user.id) // Id will not equal the current session user so it will only return the other user profiles
 
     if (data && !error) {
       setAllUsers(data)
