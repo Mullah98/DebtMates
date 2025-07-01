@@ -1,19 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { supabase } from '../supabaseClient';
 import type { Session } from '@supabase/supabase-js';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
-
+import { generateToken, messaging } from './notifications/firebase';
+import { onMessage } from 'firebase/messaging';
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null); //session can either be a Supabase Session object(when logged in) or null (when logged out)
+  const [session, setSession] = useState<Session | null>(null); // Session can either be a Supabase Session object(when logged in) or null (when logged out)
   const [loading, setLoading] = useState(true)
+  const isTokenGenerated = useRef(false);
 
   useEffect(() => {    
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
+      setSession(session);
+      setLoading(false);
+      
+      if (!isTokenGenerated.current) {
+        generateToken();
+        onMessage(messaging, (payload) => {
+          console.log(payload);
+        })
+        isTokenGenerated.current = true;
+      }
     })
 
     const {  data: { subscription } } = supabase.auth.onAuthStateChange(async(_event, session) => {
