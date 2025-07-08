@@ -49,7 +49,7 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
     if (error) {
       console.error('Could not delete debt', error)
     } else {
-      onDebtAdded();
+      onDebtAdded();      
     }
   }
 

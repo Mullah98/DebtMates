@@ -35,7 +35,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
     const { data, error } = await supabase
     .from("debts")
     .select("*")
-    .eq("lender_id", session?.user.id)
+    .or(`lender_id.eq.${session?.user.id}, borrower_id.eq.${session?.user.id}`); // Checking for 2 conditions
   
     if (data && !error) {
       setAllDebts(data)
@@ -60,9 +60,8 @@ function Dashboard({ session, signOut }: DashboardProps) {
   useEffect(() => {
     fetchAllUserDebts();
     fetchAllUsers();
-  }, [])
+  }, [session])
 
-  // console.log(allUsers);
   
   return (
     <div>
