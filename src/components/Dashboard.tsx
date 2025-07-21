@@ -18,7 +18,7 @@ export interface User {
 }
 
 function Dashboard({ session, signOut }: DashboardProps) {
-  const greeting: string = `Welcome back, ${session?.user?.user_metadata?.full_name.split(" ")[0]}`
+  const greeting: string = `Welcome back, ${session?.user?.user_metadata?.full_name?.split(" ")[0]}`
   const [allDebts, setAllDebts] = useState<Debt[]>([])
   const [allUsers, setAllUsers] = useState<User[]>([])
 
@@ -35,9 +35,9 @@ function Dashboard({ session, signOut }: DashboardProps) {
     const { data, error } = await supabase
     .from("debts")
     .select("*")
-    .or(`lender_id.eq.${session?.user.id}, borrower_id.eq.${session?.user.id}`); // Checking for 2 conditions
+    .or(`lender_id.eq.${session?.user?.id}, borrower_id.eq.${session?.user?.id}`); // Checking for 2 conditions
   
-    if (data && !error) {
+    if (data && !error) {      
       setAllDebts(data)
     } else {
       console.error('Unable to fetch user debts', error)
@@ -48,7 +48,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
     const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .neq("id", session?.user.id) // Id will not equal the current session user so it will only return the other user profiles
+    .neq("id", session?.user?.id) // Id will not equal the current session user so it will only return the other user profiles
 
     if (data && !error) {
       setAllUsers(data)
@@ -90,6 +90,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
       <div>
         <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts}/>
       </div>
+
     </div>
   )
 }

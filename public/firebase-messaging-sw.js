@@ -18,11 +18,34 @@ messaging.onBackgroundMessage((payload) => {
     '[firebase-messaging-sw.js] Received background message ',
     payload
   );
+
+  const link = payload.fcmOptions?.link || payload.data?.link;
+
   const notificationTitle = payload.notification?.title || 'New notification'
   const notificationOptions = {
     body: payload.notification?.body,
-    icon: payload.notification?.image
+    icon: payload.notification?.image,
+    data: { url: link },
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+self.addEventListener("notificationClick", function(event) {
+  event.notification.close();
+
+  // Checking if the client is already opened. If it is, it focuses on the tab. If not, it opens a new tab with the URL passes in the notification payload.
+
+  event.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+    const url = payload.fcmOptions?.link || payload.data?.link || '/';
+
+    for (const client of clientList) {
+      if (client.url === url && 'focus' in client) {
+        return client.focus();
+      }
+    }
+    if (clients.openWindow) {
+      return clients.openWindow(url);
+    }
+  })
+})

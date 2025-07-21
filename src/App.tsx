@@ -4,13 +4,18 @@ import { supabase } from '../supabaseClient.ts';
 import type { Session } from '@supabase/supabase-js';
 import LoginPage from './components/LoginPage.tsx';
 import Dashboard from './components/Dashboard.tsx';
-import { generateToken, messaging } from './notifications/firebase.ts';
+import { fetchToken, messaging } from '../firebase.ts';
 import { onMessage } from 'firebase/messaging';
+import ErrorBoundary from './components/ErrorBoundary.tsx';
+import { Toaster } from 'sonner';
+import useFcmToken from '../hooks/useFcmToken.tsx';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null); // Session can either be a Supabase Session object(when logged in) or null (when logged out)
   const [loading, setLoading] = useState(true)
   const isTokenGenerated = useRef(false);
+
+  const { token, notificationPermissionStatus } = useFcmToken();
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data: { session } }) => {
@@ -18,9 +23,17 @@ useEffect(() => {
     setLoading(false);
 
     if (session?.user && !isTokenGenerated.current) {
-      generateToken(session.user.id);
-      onMessage(messaging, (payload) => {
-        console.log('payload:', payload);
+      fetchToken().then((token) => {
+        if (token) {
+          console.log("Token saved successfully!")
+        }
+      });
+      messaging().then((msg) => {
+        if (msg) {
+          onMessage(msg, (payload) => {
+            console.log("payload:", payload);
+          });
+        }
       });
       isTokenGenerated.current = true;
     }
@@ -69,7 +82,10 @@ useEffect(() => {
   return !session ? (
     <LoginPage />
   ) : (
-    <Dashboard session={session} signOut={signOut} />
+    <ErrorBoundary>
+      <Toaster />
+    <Dashboard session={session} signOut={signOut}/>
+    </ErrorBoundary>
   )}
 
 

@@ -48,10 +48,13 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
 
     if (error) {
       console.error('Could not delete debt', error)
-    } else {
+    } else {      
       onDebtAdded();      
     }
   }
+
+  console.log(allDebts);
+  
 
   return (
     <div className="p-4 rounded-lg shadow">

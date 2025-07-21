@@ -46,21 +46,49 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
     },
   })
 
-  // Adds new debt entry to Supabase 'debts' table
+  // Add new debt entry 
   const addNewDebt = async (newDebt: Debt) => {
-    if (session?.user) {
-      const { error } = await supabase
-      .from("debts")
-      .insert([{...newDebt, lender_id: session.user.id}])      
+    if (!session?.user) return;
 
-      if (error) {
-        console.error("Error adding new debt", error)
-      } else {
-        onDebtAdded() // Refreshing the debt list after successfully adding a new debt
-        form.reset()
-        setSearchTerm("")
-      }
+    const { error } = await supabase.from("debts").insert([{ ...newDebt, lender_id: session?.user?.id }]);
+
+    if (error) {
+      console.error("Error adding new debt")
+      return;
     }
+
+    // Fetch borrower FCM Token
+    const { data: borrower } = await supabase.from("profiles").select("id, first_name, last_name, fcm_token").eq("id", newDebt.borrower_id).single();
+
+    if (!borrower) return;
+    console.log('Borrower info:', borrower);
+    
+
+    // Inserting into custom notifications table
+    const { data: newNotification } = await supabase.from("notifications").insert([{
+      user_id: borrower.id,
+      title: "New debt assigned",
+      body: `${session.user.user_metadata.full_name} assigned you a new debt.`,
+      read: false
+    }]);
+
+    if (borrower?.fcm_token) {
+      await fetch("http://localhost:4000/send-notification", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          token: borrower.fcm_token,
+          title: "New debt",
+          message: `You have assigned a new debt to ${borrower.first_name} ${borrower.last_name}.`,
+          link: "http://localhost:5173"
+        }),
+      });
+    }
+    onDebtAdded();
+    form.reset();
+    setSearchTerm("");
   }
 
   // Filter users by first name, case-sensitive match with search term
