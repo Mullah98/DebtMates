@@ -34,7 +34,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
   const fetchAllUserDebts = async () => {
     const { data, error } = await supabase
     .from("debts")
-    .select("*")
+    .select("*") // Joining the profiles table where profile.id = debts.lender_id
     .or(`lender_id.eq.${session?.user?.id}, borrower_id.eq.${session?.user?.id}`); // Checking for 2 conditions
   
     if (data && !error) {      
@@ -88,7 +88,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
       </div>
 
       <div>
-        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts}/>
+        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts} sessionUser={session?.user?.user_metadata?.full_name}/>
       </div>
 
     </div>

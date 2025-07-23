@@ -21,6 +21,7 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   due_date: z.string().min(1, "Due date is required"),
   status: z.enum(["pending", "paid", "unpaid"]),
+  lender_name: z.string().optional(),
 })
 
 export type Debt = z.infer<typeof formSchema>
@@ -50,7 +51,15 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
   const addNewDebt = async (newDebt: Debt) => {
     if (!session?.user) return;
 
-    const { error } = await supabase.from("debts").insert([{ ...newDebt, lender_id: session?.user?.id }]);
+    const { error } = await supabase
+    .from("debts")
+    .insert([{ 
+      ...newDebt,
+      lender_id: session?.user?.id, 
+      lender_name: session?.user?.user_metadata.full_name,
+    }]);
+
+    
 
     if (error) {
       console.error("Error adding new debt")
@@ -114,7 +123,8 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
                   form.setValue("borrower_name", e.target.value)
-                  }} 
+                  }}
+                autoComplete="off"
                 />
                 {searchTerm && searchTerm.length > 2 && (
                 <ul>

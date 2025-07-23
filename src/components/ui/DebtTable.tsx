@@ -13,12 +13,14 @@ import { supabase } from "../../../supabaseClient"
 import { FaTrash } from 'react-icons/fa';
 
 
+
 interface DebtTableProps {
   allDebts: Debt[];
   onDebtAdded: () => void;
+  sessionUser: string;
 }
 
-function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
+function DebtTable({ allDebts, onDebtAdded, sessionUser }: DebtTableProps) {
 
   const formatter = new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
@@ -54,6 +56,7 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
   }
 
   console.log(allDebts);
+  // console.log(sessionUser);
   
 
   return (
@@ -73,7 +76,7 @@ function DebtTable({ allDebts, onDebtAdded }: DebtTableProps) {
     <TableBody>
     {allDebts?.map((debt) => (
       <TableRow key={debt.id}>
-          <TableCell className="px-2 text-left font-semibold">{debt.borrower_name}</TableCell>
+          <TableCell className="px-2 text-left font-semibold">{debt.borrower_name === sessionUser ? debt.lender_name : debt.borrower_name}</TableCell>
           <TableCell className="px-2 text-right font-semibold text-sm">£{debt.amount}</TableCell>
           <TableCell className="px-2 text-right text-gray-800">{formatter.format(new Date(debt.due_date))}</TableCell>
           <TableCell className="px-2 text-right">
