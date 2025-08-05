@@ -5,6 +5,7 @@ import DebtTable from './ui/DebtTable';
 import { motion } from 'framer-motion';
 import { supabase } from '../../supabaseClient';
 import { useEffect, useState } from 'react';
+import DebtNotification from './ui/DebtNotification';
 
 interface DashboardProps {
     session: Session | null;
@@ -79,7 +80,11 @@ function Dashboard({ session, signOut }: DashboardProps) {
           </motion.span>
         ))}
         </h1>
+
+      <div className='flex items-center space-x-2'>
+        <DebtNotification session={session} />
         <button onClick={signOut}>Sign out</button>
+      </div>
       </div>
 
       <div className='flex flex-col md:flex-row gap-6'>
@@ -88,7 +93,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
       </div>
 
       <div>
-        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts} sessionUser={session?.user?.user_metadata?.full_name}/>
+        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts} sessionUser={session?.user?.user_metadata?.full_name} sessionUserId={session?.user?.id}/>
       </div>
 
     </div>

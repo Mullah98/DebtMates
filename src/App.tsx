@@ -83,7 +83,7 @@ useEffect(() => {
     <LoginPage />
   ) : (
     <ErrorBoundary>
-      <Toaster />
+      <Toaster position='top-right'/>
     <Dashboard session={session} signOut={signOut}/>
     </ErrorBoundary>
   )}

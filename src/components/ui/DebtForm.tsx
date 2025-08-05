@@ -11,6 +11,7 @@ import { supabase } from "../../../supabaseClient"
 import type { Session } from "@supabase/supabase-js"
 import type { User } from "../Dashboard"
 import { useState } from "react"
+import { toast } from "sonner"
 
 // Schema to validate the debt form input
 const formSchema = z.object({
@@ -22,6 +23,7 @@ const formSchema = z.object({
   due_date: z.string().min(1, "Due date is required"),
   status: z.enum(["pending", "paid", "unpaid"]),
   lender_name: z.string().optional(),
+  lender_id: z.string().uuid().optional(),
 })
 
 export type Debt = z.infer<typeof formSchema>
@@ -58,13 +60,17 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
       lender_id: session?.user?.id, 
       lender_name: session?.user?.user_metadata.full_name,
     }]);
-
     
-
     if (error) {
       console.error("Error adding new debt")
       return;
     }
+    
+    toast.success(`You have assigned a new debt to ${newDebt.borrower_name}`);
+
+    onDebtAdded();
+    form.reset();
+    setSearchTerm("");
 
     // Fetch borrower FCM Token
     const { data: borrower } = await supabase.from("profiles").select("id, first_name, last_name, fcm_token").eq("id", newDebt.borrower_id).single();
@@ -95,9 +101,6 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
         }),
       });
     }
-    onDebtAdded();
-    form.reset();
-    setSearchTerm("");
   }
 
   // Filter users by first name, case-sensitive match with search term
