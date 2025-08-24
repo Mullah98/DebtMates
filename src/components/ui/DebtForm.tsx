@@ -76,15 +76,16 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
     const { data: borrower } = await supabase.from("profiles").select("id, first_name, last_name, fcm_token").eq("id", newDebt.borrower_id).single();
 
     if (!borrower) return;
-    console.log('Borrower info:', borrower);
-    
 
+    console.log('Borrower info:', borrower);
+            
     // Inserting into custom notifications table
     const { data: newNotification } = await supabase.from("notifications").insert([{
       user_id: borrower.id,
       title: "New debt assigned",
       body: `${session.user.user_metadata.full_name} assigned you a new debt.`,
-      read: false
+      read: false,
+      type: "new_debt"
     }]);
 
     if (borrower?.fcm_token) {

@@ -19,8 +19,6 @@ import type { Debt } from "./DebtForm"
 import { supabase } from "../../../supabaseClient"
 import { FaTrash } from 'react-icons/fa';
 
-
-
 interface DebtTableProps {
   allDebts: Debt[];
   onDebtAdded: () => void;
@@ -46,6 +44,29 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTa
       console.error("Unable to update the debt status", error)
     } else {
       onDebtAdded()
+    }
+  }
+
+  // Function to handle the confirmation of the debt status. Lender will recieve a notification to confirm whether debts is paid or denied.
+  const handleStatusChange = async (debt: Debt, value: string) => {
+    if (sessionUserId === debt.borrower_id && value === "paid") {
+      await updateDebt(debt, "pending");
+
+      const { error } = await supabase.from("notifications").insert({
+        user_id: debt.lender_id,
+        title: "Confirm debt status",
+        body: `${debt.borrower_name} marked this debt as paid. Please confirm:`,
+        read: false,
+        type: "debt_status_update",
+        related_debt_id: debt.id
+      });
+
+      if (error) {
+        console.log('error updaing debt status', error);
+      }
+
+    } else {
+      await updateDebt(debt, value)
     }
   }
 
@@ -106,7 +127,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTa
                   <TableCell className="px-2 text-right text-gray-800">{formatter.format(new Date(debt.due_date))}</TableCell>
                   <TableCell className="px-2 text-right">
                     <div className="flex justify-center">
-                      <Select value={debt.status} onValueChange={(value) => updateDebt(debt, value)}>
+                      <Select value={debt.status} onValueChange={(value) => handleStatusChange(debt, value)}>
                         <SelectTrigger className="w-auto">
                           <SelectValue />
                         </SelectTrigger>
@@ -181,7 +202,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTa
                 <TableCell className="px-2 text-right text-gray-800">{formatter.format(new Date(debt.due_date))}</TableCell>
                 <TableCell className="px-2 text-right">
                   <div className="flex justify-center">
-                    <Select value={debt.status} onValueChange={(value) => updateDebt(debt, value)}>
+                    <Select value={debt.status} onValueChange={(value) => handleStatusChange(debt, value)}>
                       <SelectTrigger className="w-auto">
                         <SelectValue />
                       </SelectTrigger>

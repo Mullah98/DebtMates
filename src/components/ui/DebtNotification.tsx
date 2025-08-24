@@ -25,7 +25,9 @@ interface Notification {
     created_at: string
     title: string
     body: string
-    read: boolean
+    read?: boolean
+    type: string
+    related_debt_id?: string
 }
 
 function DebtNotification({session}: DebtNotificationProps) {
@@ -44,7 +46,7 @@ const fetchUserNotifications = async () => {
     }
 
     setNotification(notifications);
-
+    
     if (notifications.length > 0) {
       setOpen(true)
     } else {
@@ -74,7 +76,10 @@ const deleteNotification = async (notification: Notification) => {
 
 useEffect(() => {
     fetchUserNotifications();
+    console.log(notification);
 }, [])
+
+
 
   return (
   <Dialog open={open} onOpenChange={setOpen}>
