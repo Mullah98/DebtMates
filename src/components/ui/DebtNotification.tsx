@@ -14,6 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../shadcn-ui/tabs";
 import { motion } from "framer-motion";
 import { CircleCheckBig, Trash2, Bell } from 'lucide-react';
+import { toast } from "sonner";
 
 interface DebtNotificationProps {
     session: Session | null
@@ -64,6 +65,23 @@ const markAsRead = async (notification: Notification) => {
   }
 }
 
+// Function to confirm the status of the debt payment
+const handleDebtDecision = async (notification: Notification, decision: 'paid' | 'unpaid') => {
+  console.log(notification);
+  console.log('decision:', decision);
+
+  await supabase.from("notifications").update({read: true}).eq("id", notification.id)
+  const { error } = await supabase.from("debts").update({status: decision}).eq("id", notification.related_debt_id)
+
+  if (error) {
+    console.error("Unable to update debt status");
+    toast.error(`Unable to update debt as ${decision}`)
+  } else {
+    fetchUserNotifications();
+    toast.success(`Debt marked as ${decision}`)
+  }
+}
+
 const deleteNotification = async (notification: Notification) => {
   const { error } = await supabase.from("notifications").delete().eq("id", notification.id)
 
@@ -78,8 +96,6 @@ useEffect(() => {
     fetchUserNotifications();
     console.log(notification);
 }, [])
-
-
 
   return (
   <Dialog open={open} onOpenChange={setOpen}>
@@ -115,6 +131,12 @@ useEffect(() => {
           <div key={notif.id} className="border p-4 rounded-lg shadow-sm bg-gray-50 flex flex-col justify-between">
             <div className="text-lg font-semibold text-gray-800">{notif.title}</div>
             <div className="text-md text-gray-600 mt-1">{notif.body}</div>
+            {notif.type === "debt_status_update" && (
+            <div className="flex gap-3 mt-3 my-2">
+              <Button onClick={() => handleDebtDecision(notif, 'paid')}>Confirm</Button>
+              <Button variant="destructive" onClick={() => handleDebtDecision(notif, 'unpaid')}>Deny</Button>
+            </div>
+            )}
             <div className="text-sm text-muted-foreground mt-2">
               {new Date(notif.created_at).toLocaleString()}
             </div>
