@@ -82,7 +82,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
         </h1>
 
       <div className='flex items-center space-x-2'>
-        <DebtNotification session={session} />
+        <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
         <button onClick={signOut}>Sign out</button>
       </div>
       </div>

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 interface DebtNotificationProps {
     session: Session | null
+    onDebtAdded: () => void
 }
 
 interface Notification {
@@ -31,7 +32,7 @@ interface Notification {
     related_debt_id?: string
 }
 
-function DebtNotification({session}: DebtNotificationProps) {
+function DebtNotification({session, onDebtAdded}: DebtNotificationProps) {
     const [notification, setNotification] = useState<Notification[]>([]);
     const [open, setOpen] = useState(false);
     const [tab, setTab] = useState("unread")
@@ -78,6 +79,7 @@ const handleDebtDecision = async (notification: Notification, decision: 'paid' |
     toast.error(`Unable to update debt as ${decision}`)
   } else {
     fetchUserNotifications();
+    onDebtAdded();
     toast.success(`Debt marked as ${decision}`)
   }
 }
