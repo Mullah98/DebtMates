@@ -180,7 +180,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTa
         <TableCaption>
           {allDebts.filter(debt => debt.borrower_name === sessionUser).length !== 0
             ? 'A list of debts you owe.'
-            : 'You don’t owe any debts.'}
+            : 'You are debt free.'}
         </TableCaption>
         <TableHeader>
           <TableRow className="hover:bg-transparent">

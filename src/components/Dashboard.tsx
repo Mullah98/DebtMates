@@ -8,8 +8,8 @@ import { useEffect, useState } from 'react';
 import DebtNotification from './ui/DebtNotification';
 
 interface DashboardProps {
-    session: Session | null;
-    signOut: () => void;
+  session: Session | null;
+  signOut: () => void;
 }
 
 export interface User {

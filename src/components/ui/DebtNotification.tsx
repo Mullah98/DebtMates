@@ -68,10 +68,8 @@ const markAsRead = async (notification: Notification) => {
 
 // Function to confirm the status of the debt payment
 const handleDebtDecision = async (notification: Notification, decision: 'paid' | 'unpaid') => {
-  console.log(notification);
-  console.log('decision:', decision);
-
   await supabase.from("notifications").update({read: true}).eq("id", notification.id)
+  
   const { error } = await supabase.from("debts").update({status: decision}).eq("id", notification.related_debt_id)
 
   if (error) {
