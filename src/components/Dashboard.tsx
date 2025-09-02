@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '../../supabaseClient';
 import { useEffect, useState } from 'react';
 import DebtNotification from './ui/DebtNotification';
+import SettingsTab from './ui/shadcn-io/SettingsTab';
 
 interface DashboardProps {
   session: Session | null;
@@ -22,6 +23,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
   const greeting: string = `Welcome back, ${session?.user?.user_metadata?.full_name?.split(" ")[0]}`
   const [allDebts, setAllDebts] = useState<Debt[]>([])
   const [allUsers, setAllUsers] = useState<User[]>([])
+  const [userAvatar, setUserAvatar] = useState()
 
   const letterVariants = {
     hidden: { opacity: 0, x: -10 },
@@ -58,33 +60,48 @@ function Dashboard({ session, signOut }: DashboardProps) {
     }
   }
 
+  const fetchCurrentUserProfile = async () => {
+    const { data, error } = await supabase.from("profiles").select("avatar_url").eq("id", session?.user?.id).single();
+    
+    if (data && !error) {
+      setUserAvatar(data.avatar_url)
+      console.log(data);
+      
+    }
+    
+  }
+
   useEffect(() => {
     fetchAllUserDebts();
     fetchAllUsers();
-  }, [session])
-
+    fetchCurrentUserProfile();
+  }, [session])  
   
   return (
     <div>
-      <div className="sticky top-0 p-6 flex items-center justify-between space-x-4 ">
-        <h1 className='text-5xl font-bold text-gray-800 flex'>
-        {greeting.split('').map((char, i) => (
-          <motion.span
-            key={i}
-            custom={i}
-            initial="hidden"
-            animate="visible"
-            variants={letterVariants}
-          >
-          {char === " " ? '\u00A0' : char}
-          </motion.span>
-        ))}
-        </h1>
+      <div className="sticky top-0 p-6 flex items-center justify-between">
+        <div className='flex items-center space-x-4'>
+          <img src={userAvatar} alt='profile image' className='w-28 h-28 rounded-full border border-orange-500 object-cover'/>
+          <h1 className='text-5xl font-bold text-gray-800 flex'>
+          {greeting.split('').map((char, i) => (
+            <motion.span
+              key={i}
+              custom={i}
+              initial="hidden"
+              animate="visible"
+              variants={letterVariants}
+            >
+            {char === " " ? '\u00A0' : char}
+            </motion.span>
+          ))}
+          </h1>
+        </div>
 
-      <div className='flex items-center space-x-2'>
-        <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
-        <button onClick={signOut}>Sign out</button>
-      </div>
+        <div className='flex items-center space-x-2'>
+          <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
+          <SettingsTab userId={session?.user.id} />
+          <button onClick={signOut}>Sign out</button>
+        </div>
       </div>
 
       <div className='flex flex-col md:flex-row gap-6'>

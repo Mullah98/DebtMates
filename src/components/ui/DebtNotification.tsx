@@ -48,8 +48,8 @@ const fetchUserNotifications = async () => {
     }
 
     setNotification(notifications);
-    
-    if (notifications.length > 0) {
+        
+    if (notifications.length > 0 && notifications.some(n => !n.read)) {
       setOpen(true)
     } else {
       setOpen(false)
@@ -94,7 +94,6 @@ const deleteNotification = async (notification: Notification) => {
 
 useEffect(() => {
     fetchUserNotifications();
-    console.log(notification);
 }, [])
 
   return (
