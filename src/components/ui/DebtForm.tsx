@@ -12,6 +12,7 @@ import type { Session } from "@supabase/supabase-js"
 import type { User } from "../Dashboard"
 import { useState } from "react"
 import { toast } from "sonner"
+import DefaultAvatar from '../../assets/default_avatar.png'
 
 // Schema to validate the debt form input
 const formSchema = z.object({
@@ -131,12 +132,15 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
                 {searchTerm && searchTerm.length > 2 && (
                 <ul>
                   {filteredUsers.map(user => (
-                    <li className="p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 hover:text-orange-400 rounded-lg" key={user.id} onClick={() => {
+                    <li className="p-2 flex items-center justify-center cursor-pointer bg-gray-100 hover:bg-gray-200 hover:text-orange-400 rounded-lg " key={user.id} onClick={() => {
                       form.setValue("borrower_id", user.id.toString())
                       form.setValue("borrower_name", `${user.first_name} ${user.last_name}`)
                       setSearchTerm(`${user.first_name} ${user.last_name}`)
                     }}>
+                      <div className="flex align-center items-center gap-3">
+                      <img src={user.avatar_url || DefaultAvatar} alt={`${user.first_name} avatar`} className="w-8 h-8 rounded-full object-cover"></img>
                       {`${user.first_name} ${user.last_name}`}
+                      </div>
                     </li>
                   ))}
                 </ul>

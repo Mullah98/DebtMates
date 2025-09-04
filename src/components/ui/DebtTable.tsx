@@ -22,8 +22,8 @@ import { FaTrash } from 'react-icons/fa';
 interface DebtTableProps {
   allDebts: Debt[];
   onDebtAdded: () => void;
-  sessionUser: string;
-  sessionUserId: string;
+  sessionUser: string | undefined;
+  sessionUserId: string | undefined;
 }
 
 function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTableProps) {
@@ -84,7 +84,6 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTa
     }
   }
   
-
   return (
   <Tabs defaultValue="owedToYou" className="w-full mt-6">
     <TabsList className="flex space-x-2 mb-2">

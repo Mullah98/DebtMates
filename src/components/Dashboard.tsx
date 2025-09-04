@@ -18,6 +18,7 @@ export interface User {
   id: number;
   first_name: string;
   last_name: string;
+  avatar_url: string | undefined;
 }
 
 function Dashboard({ session, signOut }: DashboardProps) {
@@ -80,11 +81,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
     <div>
       <div className="sticky top-0 p-6 flex items-center justify-between">
         <div className='flex items-center space-x-4'>
-          {userAvatar ? (
-            <img src={userAvatar} alt='profile image' className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover' /> 
-          ) : (
-            <img src={DefaultAvatar} alt='default profile image' className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover'/>
-          )}
+          <img src={userAvatar || DefaultAvatar} alt='profile image' className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover' /> 
           <h1 className='text-5xl font-bold text-gray-800 flex'>
           {greeting.split('').map((char, i) => (
             <motion.span
@@ -102,7 +99,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
 
         <div className='flex items-center space-x-2'>
           <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
-          <SettingsTab userId={session?.user.id} profileIcon={userAvatar} />
+          <SettingsTab userId={session?.user.id} profileIcon={userAvatar} onAvatarUpdated={fetchCurrentUserProfile} />
           <button onClick={signOut}>Sign out</button>
         </div>
       </div>

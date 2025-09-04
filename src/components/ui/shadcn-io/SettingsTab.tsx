@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger
 } from '../../shadcn-ui/sheet';
@@ -11,34 +11,39 @@ import DefaultAvatar from '../../../assets/default_avatar.png'
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 interface SettingsTabProps {
-    userId: string
-    profileIcon: string
+    userId: string | undefined
+    profileIcon: string | undefined
+    onAvatarUpdated?: () => void
 }
 
 
-function SettingsTab( { userId, profileIcon }: SettingsTabProps) {
+function SettingsTab( { userId, profileIcon, onAvatarUpdated }: SettingsTabProps) {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
-    const [userProfileIcon, setUserProfileIcon] = useState<string>(profileIcon);       
+    const [userProfileIcon, setUserProfileIcon] = useState<string | undefined>(profileIcon);
+    
+    useEffect(() => {
+        setUserProfileIcon(profileIcon)
+    }, [profileIcon])
 
+    // Function handler when user selects a new file
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFile(e.target.files[0])
         }
     }
 
+    // Uploading the selected file to Supabase storage and update the user's profile
     const handleFileUpload = async () => {
         if (!file) return;
 
         setStatus("uploading");
 
+        // Generate a unique file name to avoid conflicts
         const fileName = `${uuidv4()}-${file.name}`;
 
-        const { data, error } = await supabase.storage.from("avatars").upload(`${userId}/${fileName}`, file);
-
-        // console.log("Uploaded as:", data);
-        
-
+        // Upload file to the 'avatars' bucket under userId folder
+        const { error } = await supabase.storage.from("avatars").upload(`${userId}/${fileName}`, file);
 
         if (error) {
             console.error(error);
@@ -47,10 +52,7 @@ function SettingsTab( { userId, profileIcon }: SettingsTabProps) {
             return;
         }
 
-        const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(`${userId}/${fileName}`);
-
-        // console.log("Public URL:", publicUrl);
-        
+        const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(`${userId}/${fileName}`);        
         
         const { error: updateError } = await supabase.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", userId);
 
@@ -61,23 +63,36 @@ function SettingsTab( { userId, profileIcon }: SettingsTabProps) {
             return;
         }
         
-        setUserProfileIcon(publicUrl.publicUrl)
+        setUserProfileIcon(publicUrl.publicUrl);
         setStatus("success");        
         toast.success("avatar updated!");
-        setFile(null)      
+        setFile(null); // Clear the file and status once the new profile avatar is updated
+        setTimeout(() => setStatus('idle'), 3000);
+        onAvatarUpdated?.(); // Notify Dashboard component the avatar was updated
     }
+
     
   return (
     <Sheet>
         <SheetTrigger><Settings size={20}/></SheetTrigger>
-        <SheetContent>
-            <SheetHeader className='mt-8 text-center'>
+        <SheetContent className='pt-12 flex flex-col items-center'>
+            <SheetHeader className='mt-12 text-center'>
                 <SheetTitle>Profile settings</SheetTitle>
                 <SheetDescription>Upload your profile image.</SheetDescription>
             </SheetHeader>
 
-        <div className='mt-6 flex flex-col items-center gap-2'>
-            <img src={profileIcon || DefaultAvatar} alt='profile image' className='w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover'/>
+        <div className='flex flex-col items-center gap-4'>
+            {status === "uploading" ? (
+            <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
+                <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
+            </div>
+            ) : (
+            <img
+                src={userProfileIcon || DefaultAvatar}
+                alt="profile image"
+                className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover"
+            />
+            )}
 
             <div className="flex flex-col items-center gap-3 w-full px-4">
                 <label
