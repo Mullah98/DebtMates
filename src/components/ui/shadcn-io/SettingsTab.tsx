@@ -6,18 +6,20 @@ import { Settings } from 'lucide-react';
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from '../../../../supabaseClient';
 import { toast } from 'sonner';
+import DefaultAvatar from '../../../assets/default_avatar.png'
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 interface SettingsTabProps {
     userId: string
+    profileIcon: string
 }
 
 
-function SettingsTab( { userId }: SettingsTabProps) {
-    const img = 'https://www.shutterstock.com/image-photo/headshot-portrait-happy-millennial-man-600nw-1548802709.jpg'
+function SettingsTab( { userId, profileIcon }: SettingsTabProps) {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
+    const [userProfileIcon, setUserProfileIcon] = useState<string>(profileIcon);       
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -34,6 +36,9 @@ function SettingsTab( { userId }: SettingsTabProps) {
 
         const { data, error } = await supabase.storage.from("avatars").upload(`${userId}/${fileName}`, file);
 
+        // console.log("Uploaded as:", data);
+        
+
 
         if (error) {
             console.error(error);
@@ -42,7 +47,10 @@ function SettingsTab( { userId }: SettingsTabProps) {
             return;
         }
 
-        const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(fileName);
+        const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(`${userId}/${fileName}`);
+
+        // console.log("Public URL:", publicUrl);
+        
         
         const { error: updateError } = await supabase.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", userId);
 
@@ -52,37 +60,52 @@ function SettingsTab( { userId }: SettingsTabProps) {
             toast.error("failed to save avatar");
             return;
         }
-
-        setStatus("success");
-        toast.success("avatar updated!")
+        
+        setUserProfileIcon(publicUrl.publicUrl)
+        setStatus("success");        
+        toast.success("avatar updated!");
+        setFile(null)      
     }
-
+    
   return (
     <Sheet>
         <SheetTrigger><Settings size={20}/></SheetTrigger>
         <SheetContent>
-            <SheetHeader className='mt-8'>
+            <SheetHeader className='mt-8 text-center'>
                 <SheetTitle>Profile settings</SheetTitle>
                 <SheetDescription>Upload your profile image.</SheetDescription>
             </SheetHeader>
 
-        <div className='mt-6 flex flex-col items-center gap-4'>
-            <img src={img} alt='profile image' className='w-32 h-32 sm:w-40 sm:h-40 rounded-full border border-gray-300 object-cover'/>
+        <div className='mt-6 flex flex-col items-center gap-2'>
+            <img src={profileIcon || DefaultAvatar} alt='profile image' className='w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover'/>
 
-            <input type='file' onChange={handleFileChange} accept='image/*' className='border border-gray-400 file-input file-input-bordered' />
+            <div className="flex flex-col items-center gap-3 w-full px-4">
+                <label
+                    htmlFor="avatar-upload"
+                    className="text-sm cursor-pointer px-4 py-2 bg-orange-400 text-white rounded-md shadow hover:bg-orange-500"
+                >
+                    Choose File
+                </label>
+                <input
+                    id="avatar-upload"
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                />
+                {file && ( 
+                    <p className="text-sm text-gray-600 max-w-[300px] truncate">
+                        Selected: {file.name}
+                    </p>
+                )}
 
-            {file && (
-                <div className='mb-4 text-sm'>
-                    <p>File name: {file.name}</p>
-                    <p>Size: {(file.size / 1024).toFixed(2)} KB</p>
-                    <p>Type: {file.type}</p>
-                </div>
-            )}
-            {file && ( 
-                <button onClick={handleFileUpload}>
-                    {status === 'uploading' ? "Uploading.." : "Upload image"}
-                </button>
-             )}
+                {file && ( 
+                    <button onClick={handleFileUpload} disabled={status === 'uploading'}>
+                        {status === 'uploading' ? "Uploading.." : "Upload image"}
+                    </button>
+                )}
+             </div>
+
             {/* <button className='px-4 py-2 bg-blue-500 text-white rounded'>Save button</button> */}
         </div>
         </SheetContent>

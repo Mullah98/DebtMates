@@ -66,7 +66,6 @@ useEffect(() => {
 }, []);
 
   const signOut = async () => {
-    console.log('Clicked sign out')
     const { error } = await supabase.auth.signOut();
     if (error) console.error("Failed to sign out", error)
       else setSession(null)
