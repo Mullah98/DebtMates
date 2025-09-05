@@ -16,7 +16,6 @@ interface SettingsTabProps {
     onAvatarUpdated?: () => void
 }
 
-
 function SettingsTab( { userId, profileIcon, onAvatarUpdated }: SettingsTabProps) {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
