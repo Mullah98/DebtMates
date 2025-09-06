@@ -26,6 +26,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
   const [allDebts, setAllDebts] = useState<Debt[]>([])
   const [allUsers, setAllUsers] = useState<User[]>([])
   const [userAvatar, setUserAvatar] = useState<string>()
+  const [currency, setCurrency] = useState<string | undefined>('£')
 
   const letterVariants = {
     hidden: { opacity: 0, x: -10 },
@@ -79,7 +80,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
   
   return (
     <div>
-      <div className="sticky top-0 p-6 flex items-center justify-between">
+      <div className="sticky top-0 z-10 p-6 flex items-center justify-between bg-[#f9f9f9]">
         <div className='flex items-center space-x-4'>
           <img src={userAvatar || DefaultAvatar} alt='profile image' className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover' /> 
           <h1 className='text-5xl font-bold text-gray-800 flex'>
@@ -99,18 +100,18 @@ function Dashboard({ session, signOut }: DashboardProps) {
 
         <div className='flex items-center space-x-2'>
           <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
-          <SettingsTab userId={session?.user.id} profileIcon={userAvatar} onAvatarUpdated={fetchCurrentUserProfile} />
+          <SettingsTab userId={session?.user.id} profileIcon={userAvatar} onAvatarUpdated={fetchCurrentUserProfile} currency={currency} onCurrencyChange={setCurrency} />
           <button onClick={signOut}>Sign out</button>
         </div>
       </div>
 
       <div className='flex flex-col md:flex-row gap-6'>
         <DebtChart debts={allDebts} />
-        <DebtForm session={session} onDebtAdded={fetchAllUserDebts} allUsers={allUsers} />
+        <DebtForm session={session} onDebtAdded={fetchAllUserDebts} allUsers={allUsers} currency={currency} />
       </div>
 
       <div>
-        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts} sessionUser={session?.user?.user_metadata?.full_name} sessionUserId={session?.user?.id}/>
+        <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts} sessionUser={session?.user?.user_metadata?.full_name} sessionUserId={session?.user?.id} currency={currency} />
       </div>
 
     </div>

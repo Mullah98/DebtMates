@@ -33,9 +33,10 @@ interface DebtFormProps {
   session: Session | null;
   onDebtAdded: () => void;
   allUsers: User[]
+  currency: string | undefined
 }
 
-function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
+function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
 
   const [searchTerm, setSearchTerm] = useState("")
   
@@ -156,7 +157,7 @@ function DebtForm({ session, onDebtAdded, allUsers }: DebtFormProps) {
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amount (£)</FormLabel>
+              <FormLabel>Amount ({currency})</FormLabel>
               <FormControl>
                 <Input type="number" placeholder="Enter amount" {...field} />
               </FormControl>

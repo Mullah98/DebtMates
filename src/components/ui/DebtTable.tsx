@@ -24,9 +24,10 @@ interface DebtTableProps {
   onDebtAdded: () => void;
   sessionUser: string | undefined;
   sessionUserId: string | undefined;
+  currency: string | undefined;
 }
 
-function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTableProps) {
+function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency }: DebtTableProps) {
 
   const formatter = new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
@@ -122,7 +123,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId }: DebtTa
               .map((debt) => (
                 <TableRow key={debt.id}>
                   <TableCell className="px-2 text-left font-semibold">{debt.borrower_name}</TableCell>
-                  <TableCell className="px-2 text-right font-semibold text-sm">£{debt.amount}</TableCell>
+                  <TableCell className="px-2 text-right font-semibold text-sm">{currency}{debt.amount}</TableCell>
                   <TableCell className="px-2 text-right text-gray-800">{formatter.format(new Date(debt.due_date))}</TableCell>
                   <TableCell className="px-2 text-right">
                     <div className="flex justify-center">
