@@ -15,10 +15,11 @@ interface DashboardProps {
 }
 
 export interface User {
-  id: number;
+  id: string;
+  friend_id?: string;
   first_name: string;
   last_name: string;
-  avatar_url: string | undefined;
+  avatar_url?: string | undefined;
 }
 
 function Dashboard({ session, signOut }: DashboardProps) {
@@ -50,11 +51,11 @@ function Dashboard({ session, signOut }: DashboardProps) {
     }
   }
 
-  const fetchAllUsers = async () => {
+  const fetchFriendList = async () => {
     const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .neq("id", session?.user?.id) // Id will not equal the current session user so it will only return the other user profiles
+    .from("friends")
+    .select("id, friend_id, first_name, last_name, avatar_url")
+    .eq("user_id", session?.user?.id) // Id will not equal the current session user so it will only return the other user profiles
 
     if (data && !error) {
       setAllUsers(data)
@@ -73,7 +74,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
   
   useEffect(() => {
     fetchAllUserDebts();
-    fetchAllUsers();
+    fetchFriendList();
     fetchCurrentUserProfile();
   }, [session]);
 
@@ -100,7 +101,15 @@ function Dashboard({ session, signOut }: DashboardProps) {
 
         <div className='flex items-center space-x-2'>
           <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
-          <SettingsTab userId={session?.user.id} profileIcon={userAvatar} onAvatarUpdated={fetchCurrentUserProfile} currency={currency} onCurrencyChange={setCurrency} />
+          <SettingsTab 
+          userId={session?.user.id} 
+          profileIcon={userAvatar} 
+          onAvatarUpdated={fetchCurrentUserProfile} 
+          currency={currency} 
+          onCurrencyChange={setCurrency} 
+          session={session}
+          friendsList={allUsers}
+          refreshFriendsList={fetchFriendList} />
           <button onClick={signOut}>Sign out</button>
         </div>
       </div>

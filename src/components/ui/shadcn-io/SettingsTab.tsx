@@ -8,6 +8,13 @@ import { supabase } from '../../../../supabaseClient';
 import { toast } from 'sonner';
 import DefaultAvatar from '../../../assets/default_avatar.png'
 import { Tabs, TabsTrigger, TabsList } from '@/components/shadcn-ui/tabs';
+import { Input } from '@/components/shadcn-ui/input';
+import { Command, CommandItem, CommandList } from '@/components/shadcn-ui/command';
+import { Button } from '@/components/shadcn-ui/button';
+import type { Session } from '@supabase/supabase-js';
+import type { User } from '@/components/Dashboard';
+import { FaMinusCircle } from "react-icons/fa";
+
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -17,16 +24,22 @@ interface SettingsTabProps {
     onAvatarUpdated?: () => void
     currency: string | undefined
     onCurrencyChange: (value: string) => void
+    session: Session | null
+    friendsList: User[]
+    refreshFriendsList: () => void
 }
 
-function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange }: SettingsTabProps) {
+function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, session, friendsList, refreshFriendsList }: SettingsTabProps) {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
     const [userProfileIcon, setUserProfileIcon] = useState<string | undefined>(profileIcon);
     const [currency, setCurrency] = useState('GBP')
+    const [searchTerm, setSearchTerm] = useState<string | undefined>("");
+    const [results, setResults] = useState<any[]>([]);
     
     useEffect(() => {
-        setUserProfileIcon(profileIcon)
+        setUserProfileIcon(profileIcon),
+        fetchAllUsers()
     }, [profileIcon])
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +88,49 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange }
     const updateCurrency = (value: string) => {
         setCurrency(value);
         onCurrencyChange(value);
+    }
+
+    const fetchAllUsers = async () => {
+        const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .neq("id", session?.user?.id) // Id will not equal the current session user so it will only return the other user profiles
+
+        if (data && !error) {
+        setResults(data)
+        // console.log(results);
+        } else {
+        console.error("unable to retrieve all user profiles", error)
+        }
+    }
+
+    const filteredUsers = results.filter(user => 
+        user.first_name.toLowerCase().includes(searchTerm?.toLowerCase())
+    )
+
+    const addFriend = async (friend: User) => {
+        const { error } = await supabase.from("friends")
+        .insert([{
+            user_id: session?.user?.id, friend_id: friend?.id, first_name: friend.first_name, last_name: friend.last_name, avatar_url: friend.avatar_url,
+        }])
+        
+        if (error) {
+            console.error('Error adding friend to list', error);
+        } else {
+            refreshFriendsList();
+            toast.success("You've added a new friend!")
+        }
+    }
+
+    const deleteFriend = async (friend: User) => {
+        const { error } = await supabase.from("friends").delete().eq("user_id", session?.user?.id).eq("friend_id", friend.friend_id)
+
+        if (error) {
+            console.error("error deleting friend", error)
+        } else {
+            toast.error("Friend successfully removed!");
+            refreshFriendsList();
+        }
     }
     
   return (
@@ -129,18 +185,59 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange }
                 </SheetHeader>
             </div>
             
-            {/* <div className='flex flex-col items-center gap-4 border-t border-gray-200'>
-                <SheetHeader className='mt-12 text-center'>
-                    <SheetTitle>Account settings</SheetTitle>
-                    <SheetDescription>Change your email or password</SheetDescription>
+            <div className='flex flex-col items-center gap-4 border-t border-gray-200'>
+                <SheetHeader className='mt-4 text-center'>
+                    <SheetTitle>Friends list settings</SheetTitle>
+                    <SheetDescription>Add or remove friends</SheetDescription>
                 </SheetHeader>
-                <input type='email' placeholder='new email' className='input-style' />
-                <input type='password' placeholder='new password' className='input-style' />
-                <button className='btn-style mt-2'>Save changes</button>
-            </div> */}
+
+                <Input placeholder='Search for friends...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <Command className='rounded-md border w-full max-w-md h-auto'>
+                    {searchTerm && searchTerm.length > 2 && (
+                    <CommandList>
+                        {filteredUsers.map((user) => (
+                            <CommandItem key={user.id} className='flex justify-between items-center px-4 py-2 gap-4'>
+                                <div className='flex items-center gap-2'>
+                                    <img src={user.avatar_url || DefaultAvatar} alt={user.first_name} className='w-12 h-12 rounded-full object-cover'/>
+                                    <span>{user.first_name} {user.last_name}</span>
+                                </div>
+                                <Button size='sm' onClick={() => addFriend(user)} disabled={friendsList.some(friend => friend.friend_id === user.id)}>
+                                    Add friend
+                                </Button>
+                            </CommandItem>
+                        ))}
+                    </CommandList>
+                    )}
+                </Command>
+    
+                <div className='mt-2 w-full max-w-md'>
+                    <SheetHeader className='text-center'>
+                        <SheetTitle>Your friends list</SheetTitle>
+                    </SheetHeader>
+
+                    <Command className='text-center rounded-md border-none w-full h-auto'>
+                        <CommandList className='w-full'>
+                            {friendsList.length > 0 ? (
+                                friendsList.map((friend) => (
+                                    <CommandItem key={friend.friend_id} className='flex justify-between items-center px-4 gap-4'>
+                                        <div className='flex items-center gap-3'>
+                                            <img src={friend.avatar_url || DefaultAvatar} alt={friend.first_name} className='w-12 h-12 rounded-full object-cover' />
+                                            <span>{friend.first_name} {friend.last_name}</span>
+                                        </div>
+                                            <Button size='sm' onClick={() => deleteFriend(friend)} title='Remove friend from list'><FaMinusCircle color='red' /></Button>
+                                    </CommandItem>
+                                ))
+                            ) : (
+                                <p className='text-sm text-gray-500 px-4 py-3'>No friends added yet.</p>
+                            )}
+                        </CommandList>
+                    </Command>
+                </div>
+
+            </div>
 
             <div className='flex flex-col items-center gap-4 border-t border-gray-200 pt-4'>
-                <SheetHeader className='mt-12  text-center'>
+                <SheetHeader className='mt-6 text-center'>
                     <SheetTitle>Preference</SheetTitle>
                     <SheetDescription>Update your preference settings</SheetDescription>
                 </SheetHeader>
@@ -152,8 +249,6 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange }
                     </TabsList>
                 </Tabs>
             </div>
-        
-
 
         </SheetContent>
             {/* <button className='px-4 py-2 bg-blue-500 text-white rounded'>Save button</button> */}

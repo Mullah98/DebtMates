@@ -102,7 +102,7 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
         }),
       });
     }
-  }
+  }  
 
   // Filter users by first name, case-sensitive match with search term
   const filteredUsers = allUsers.filter(user => 
