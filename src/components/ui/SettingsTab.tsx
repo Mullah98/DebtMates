@@ -1,12 +1,12 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger
-} from '../../shadcn-ui/sheet';
+} from '../shadcn-ui/sheet';
 import { Settings } from 'lucide-react';
 import { v4 as uuidv4 } from "uuid";
-import { supabase } from '../../../../supabaseClient';
+import { supabase } from '../../../supabaseClient';
 import { toast } from 'sonner';
-import DefaultAvatar from '../../../assets/default_avatar.png'
+import DefaultAvatar from '../../assets/default_avatar.png'
 import { Tabs, TabsTrigger, TabsList } from '@/components/shadcn-ui/tabs';
 import { Input } from '@/components/shadcn-ui/input';
 import { Command, CommandItem, CommandList } from '@/components/shadcn-ui/command';
@@ -14,7 +14,7 @@ import { Button } from '@/components/shadcn-ui/button';
 import type { Session } from '@supabase/supabase-js';
 import type { User } from '@/components/Dashboard';
 import { FaMinusCircle } from "react-icons/fa";
-
+import { IoIosArrowDropupCircle, IoIosArrowDropdownCircle } from "react-icons/io";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -33,9 +33,10 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
     const [userProfileIcon, setUserProfileIcon] = useState<string | undefined>(profileIcon);
-    const [currency, setCurrency] = useState('GBP')
-    const [searchTerm, setSearchTerm] = useState<string | undefined>("");
-    const [results, setResults] = useState<any[]>([]);
+    const [currency] = useState('GBP');
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [results, setResults] = useState<User[] | null>([]);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     
     useEffect(() => {
         setUserProfileIcon(profileIcon),
@@ -85,11 +86,6 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
         onAvatarUpdated?.(); // Notify Dashboard component the avatar was updated
     }
 
-    const updateCurrency = (value: string) => {
-        setCurrency(value);
-        onCurrencyChange(value);
-    }
-
     const fetchAllUsers = async () => {
         const { data, error } = await supabase
         .from("profiles")
@@ -98,14 +94,13 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
 
         if (data && !error) {
         setResults(data)
-        // console.log(results);
         } else {
         console.error("unable to retrieve all user profiles", error)
         }
     }
 
-    const filteredUsers = results.filter(user => 
-        user.first_name.toLowerCase().includes(searchTerm?.toLowerCase())
+    const filteredUsers = results?.filter(user => 
+        user?.first_name?.toLowerCase().includes(searchTerm?.toLowerCase())
     )
 
     const addFriend = async (friend: User) => {
@@ -118,6 +113,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
             console.error('Error adding friend to list', error);
         } else {
             refreshFriendsList();
+            setSearchTerm("")
             toast.success("You've added a new friend!")
         }
     }
@@ -138,22 +134,22 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
         <SheetTrigger>
             <Settings size={20}/>
         </SheetTrigger>
-        <SheetContent className='pt-6 flex flex-col items-center'>
+        <SheetContent className='pt-6 flex flex-col items-center overflow-y-auto'>
             
             <div className='flex flex-col items-center gap-6'>
                 <SheetHeader className='mt-2 text-center'>
                 <SheetTitle className='mt-2'>Profile settings</SheetTitle>
                 <SheetDescription>Upload your profile image.</SheetDescription>
                 {status === "uploading" ? (
-                <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
-                    <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
-                </div>
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
+                        <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
+                    </div>
                 ) : (
-                <img
-                    src={userProfileIcon || DefaultAvatar}
-                    alt="profile image"
-                    className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4 mx-4"
-                />
+                    <img
+                        src={userProfileIcon || DefaultAvatar}
+                        alt="profile image"
+                        className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4 mx-4"
+                    />
                 )}
 
                 <div className="flex flex-col items-center w-full mt-4">
@@ -192,11 +188,11 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
                 </SheetHeader>
 
                 <Input placeholder='Search for friends...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                <Command className='rounded-md border w-full max-w-md h-auto'>
+                <Command className='rounded-md w-82 max-w-md h-auto'>
                     {searchTerm && searchTerm.length > 2 && (
-                    <CommandList>
-                        {filteredUsers.map((user) => (
-                            <CommandItem key={user.id} className='flex justify-between items-center px-4 py-2 gap-4'>
+                    <CommandList className='max-h-60 overflow-y-auto'>
+                        {filteredUsers?.map((user) => (
+                            <CommandItem key={user.id} className='flex justify-between items-center w-82 px-4 py-2 gap-4'>
                                 <div className='flex items-center gap-2'>
                                     <img src={user.avatar_url || DefaultAvatar} alt={user.first_name} className='w-12 h-12 rounded-full object-cover'/>
                                     <span>{user.first_name} {user.last_name}</span>
@@ -211,16 +207,27 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
                 </Command>
     
                 <div className='mt-2 w-full max-w-md'>
-                    <SheetHeader className='text-center'>
-                        <SheetTitle>Your friends list</SheetTitle>
-                    </SheetHeader>
-
+                    <div className='flex items-center justify-center cursor-pointer gap-2' onClick={() => setDropdownOpen(!dropdownOpen)}>
+                        <span className='text-base font-semibold my-1 flex gap-2'>
+                            Your friends list 
+                            <span className='inline-flex items-center justify-center px-2 text-sm font-medium text-white bg-orange-400 rounded-full'>
+                                {friendsList.length}
+                            </span>
+                        </span>
+                        {dropdownOpen ? (
+                            <IoIosArrowDropupCircle color='orange' />
+                        ) : (
+                            <IoIosArrowDropdownCircle color='orange' />
+                        )}
+                    </div>
+                    
+                    <div className={`overflow-hidden transition-[max-height] duration-300 ease-in-out`} style={{ maxHeight: dropdownOpen ? '15rem' : '0' }}>
                     <Command className='text-center rounded-md border-none w-full h-auto'>
                         <CommandList className='w-full'>
                             {friendsList.length > 0 ? (
                                 friendsList.map((friend) => (
-                                    <CommandItem key={friend.friend_id} className='flex justify-between items-center px-4 gap-4'>
-                                        <div className='flex items-center gap-3'>
+                                    <CommandItem key={friend.friend_id} className='flex justify-between items-center px-4 py-2 gap-4'>
+                                        <div className='flex items-center gap-2'>
                                             <img src={friend.avatar_url || DefaultAvatar} alt={friend.first_name} className='w-12 h-12 rounded-full object-cover' />
                                             <span>{friend.first_name} {friend.last_name}</span>
                                         </div>
@@ -232,6 +239,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
                             )}
                         </CommandList>
                     </Command>
+                    </div>
                 </div>
 
             </div>
@@ -251,7 +259,6 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
             </div>
 
         </SheetContent>
-            {/* <button className='px-4 py-2 bg-blue-500 text-white rounded'>Save button</button> */}
     </Sheet>
   )
 }

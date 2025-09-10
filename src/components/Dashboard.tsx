@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '../../supabaseClient';
 import { useEffect, useState } from 'react';
 import DebtNotification from './ui/DebtNotification';
-import SettingsTab from './ui/shadcn-io/SettingsTab';
+import SettingsTab from './ui/SettingsTab';
 import DefaultAvatar from '../assets/default_avatar.png'
 
 interface DashboardProps {
@@ -77,7 +77,6 @@ function Dashboard({ session, signOut }: DashboardProps) {
     fetchFriendList();
     fetchCurrentUserProfile();
   }, [session]);
-
   
   return (
     <div>
