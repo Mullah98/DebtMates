@@ -80,10 +80,12 @@ function Dashboard({ session, signOut }: DashboardProps) {
   
   return (
     <div>
-      <div className="sticky top-0 z-10 p-6 flex items-center justify-between bg-[#f9f9f9]">
-        <div className='flex items-center space-x-4'>
-          <img src={userAvatar || DefaultAvatar} alt='profile image' className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover' /> 
-          <h1 className='text-5xl font-bold text-gray-800 flex'>
+      <div className="sticky top-0 z-10 p-6 flex flex-wrap items-center justify-between bg-[#f9f9f9]">
+        <div className='flex flex-col sm:flex-row sm:items-center sm:space-x-4 min-w-0 flex-shrink'>
+          <img src={userAvatar || DefaultAvatar} 
+          alt='profile image' 
+          className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover flex-shrink-0' /> 
+          <h1 className='hidden sm:block text-2xl md:text-4xl lg:text-5xl mt-2 sm:mt-0 break-words min-w-0 font-bold text-gray-800'>
           {greeting.split('').map((char, i) => (
             <motion.span
               key={i}
@@ -98,7 +100,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
           </h1>
         </div>
 
-        <div className='flex items-center space-x-2'>
+        <div className='flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 flex-shrink-0 mt-4 sm:mt-0'>
           <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
           <SettingsTab 
           userId={session?.user.id} 
