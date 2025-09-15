@@ -15,7 +15,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const isTokenGenerated = useRef(false);
 
-  const { token, notificationPermissionStatus } = useFcmToken();
+  // const { token, notificationPermissionStatus } = useFcmToken();
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,7 +55,7 @@ useEffect(() => {
             });
           }
         });
-    }
+    }    
   });
 
   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -66,11 +66,15 @@ useEffect(() => {
 }, []);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.error("Failed to sign out", error)
-      else setSession(null)
-  }
-  
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      console.log('no session')
+    } else {
+      await supabase.auth.signOut();
+      setSession(null)
+    }
+  }  
 
   if (loading) {
     return (

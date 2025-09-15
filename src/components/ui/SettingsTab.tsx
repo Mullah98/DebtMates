@@ -137,7 +137,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
         <SheetContent className='pt-6 flex flex-col items-center overflow-y-auto'>
             
             <div className='flex flex-col items-center gap-6'>
-                <SheetHeader className='mt-2 text-center'>
+                <SheetHeader className='mt-2 text-center w-full flex flex-col items-center'>
                 <SheetTitle className='mt-2'>Profile settings</SheetTitle>
                 <SheetDescription>Upload your profile image.</SheetDescription>
                 {status === "uploading" ? (
@@ -148,7 +148,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
                     <img
                         src={userProfileIcon || DefaultAvatar}
                         alt="profile image"
-                        className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4 mx-4"
+                        className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4"
                     />
                 )}
 
@@ -187,12 +187,12 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
                     <SheetDescription>Add or remove friends</SheetDescription>
                 </SheetHeader>
 
-                <Input placeholder='Search for friends...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                <Command className='rounded-md w-82 max-w-md h-auto'>
+                <Input className="w-auto sm:w-82" placeholder='Search for friends...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <Command className='rounded-md w-64 sm:w-82 max-w-md h-auto text-sm sm:text-base'>
                     {searchTerm && searchTerm.length > 2 && (
                     <CommandList className='max-h-60 overflow-y-auto'>
                         {filteredUsers?.map((user) => (
-                            <CommandItem key={user.id} className='flex justify-between items-center w-82 px-4 py-2 gap-4'>
+                            <CommandItem key={user.id} className='flex justify-between items-center w-full px-2 sm:px-4 py-1 sm:py-2 gap-2 sm:gap-4 text-sm'>
                                 <div className='flex items-center gap-2'>
                                     <img src={user.avatar_url || DefaultAvatar} alt={user.first_name} className='w-12 h-12 rounded-full object-cover'/>
                                     <span>{user.first_name} {user.last_name}</span>

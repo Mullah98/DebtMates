@@ -61,10 +61,10 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
       ...newDebt,
       lender_id: session?.user?.id, 
       lender_name: session?.user?.user_metadata.full_name,
-    }]);
+    }]);    
     
     if (error) {
-      console.error("Error adding new debt")
+      console.error("Error adding new debt", error)
       return;
     }
     
@@ -75,7 +75,11 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
     setSearchTerm("");
 
     // Fetch borrower FCM Token
-    const { data: borrower } = await supabase.from("profiles").select("id, first_name, last_name, fcm_token").eq("id", newDebt.borrower_id).single();
+    const { data: borrower } = await supabase
+    .from("profiles")
+    .select("id, first_name, last_name, fcm_token")
+    .eq("id", newDebt.borrower_id)
+    .single();
 
     if (!borrower) return;
             
@@ -107,7 +111,7 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
   // Filter users by first name, case-sensitive match with search term
   const filteredUsers = allUsers.filter(user => 
     user.first_name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  )  
 
   return (
     <Form {...form}>
@@ -133,11 +137,14 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
                 {searchTerm && searchTerm.length > 2 && (
                 <ul>
                   {filteredUsers.map(user => (
-                    <li className="p-2 flex items-center justify-center cursor-pointer bg-gray-100 hover:bg-gray-200 hover:text-orange-400 rounded-lg " key={user.id} onClick={() => {
-                      form.setValue("borrower_id", user.id.toString())
+                    <li 
+                    key={user.id}
+                    onClick={() => {
+                      form.setValue("borrower_id", user.friend_id?.toString())
                       form.setValue("borrower_name", `${user.first_name} ${user.last_name}`)
                       setSearchTerm(`${user.first_name} ${user.last_name}`)
-                    }}>
+                    }}
+                    className="mt-1 p-2 flex items-center justify-center cursor-pointer bg-gray-100 hover:bg-gray-200 hover:text-orange-400 rounded-lg" >
                       <div className="flex align-center items-center gap-3">
                       <img src={user.avatar_url || DefaultAvatar} alt={`${user.first_name} avatar`} className="w-8 h-8 rounded-full object-cover"></img>
                       {`${user.first_name} ${user.last_name}`}

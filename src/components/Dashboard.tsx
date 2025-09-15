@@ -84,7 +84,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
         <div className='flex flex-col sm:flex-row sm:items-center sm:space-x-4 min-w-0 flex-shrink'>
           <img src={userAvatar || DefaultAvatar} 
           alt='profile image' 
-          className='w-24 h-24 rounded-full border-3 border-orange-500 object-cover flex-shrink-0' /> 
+          className='w-34 h-34 sm:w-28 sm:h-28 rounded-full border-3 border-orange-500 object-cover flex-shrink-0' /> 
           <h1 className='hidden sm:block text-2xl md:text-4xl lg:text-5xl mt-2 sm:mt-0 break-words min-w-0 font-bold text-gray-800'>
           {greeting.split('').map((char, i) => (
             <motion.span
@@ -100,7 +100,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
           </h1>
         </div>
 
-        <div className='flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 flex-shrink-0 mt-4 sm:mt-0'>
+        <div className='text-sm sm:text-lg flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 flex-shrink-0 mt-4 sm:mt-0'>
           <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
           <SettingsTab 
           userId={session?.user.id} 
@@ -116,7 +116,7 @@ function Dashboard({ session, signOut }: DashboardProps) {
       </div>
 
       <div className='flex flex-col md:flex-row gap-6'>
-        <DebtChart debts={allDebts} />
+        <DebtChart debts={allDebts} currency={currency} />
         <DebtForm session={session} onDebtAdded={fetchAllUserDebts} allUsers={allUsers} currency={currency} />
       </div>
 

@@ -38,7 +38,10 @@ function DebtNotification({session, onDebtAdded}: DebtNotificationProps) {
     const [tab, setTab] = useState("unread")
 
 const fetchUserNotifications = async () => {
-    const { data: notifications } = await supabase.from("notifications").select("*").eq("user_id", session?.user?.id)
+    const { data: notifications } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", session?.user?.id)
 
     if (!notifications) {
       console.error("No notifications found.");
@@ -47,6 +50,8 @@ const fetchUserNotifications = async () => {
       return;
     }
 
+    console.log(notifications);
+    
     setNotification(notifications);
         
     if (notifications.length > 0 && notifications.some(n => !n.read)) {
@@ -96,10 +101,11 @@ useEffect(() => {
     fetchUserNotifications();
 }, [])
 
+
   return (
   <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant="outline"><Bell size={40} />{notification.length}</Button>
+      <Button variant="outline" className=""><Bell size={40} className="" />{notification.length}</Button>
     </DialogTrigger>
     <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto rounded-xl shadow-xl bg-white">
       <DialogHeader>
@@ -128,7 +134,7 @@ useEffect(() => {
       <div className="space-y-4 mt-4">
         {notification.filter(notif => !notif.read).map((notif) => (
           <div key={notif.id} className="border p-4 rounded-lg shadow-sm bg-gray-50 flex flex-col justify-between">
-            <div className="text-lg font-semibold text-gray-800">{notif.title}</div>
+            <div className="text-base sm:text-lg font-semibold text-gray-800">{notif.title}</div>
             <div className="text-md text-gray-600 mt-1">{notif.body}</div>
             {notif.type === "debt_status_update" && (
             <div className="flex gap-3 mt-3 my-2">

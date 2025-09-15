@@ -86,7 +86,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
   }
   
   return (
-  <Tabs defaultValue="owedToYou" className="w-full mt-6">
+  <Tabs defaultValue="owedToYou" className="w-full mt-6 text-sm sm:text-base">
     <TabsList className="flex space-x-2 mb-2">
       <TabsTrigger value="owedToYou">Debts owed to you</TabsTrigger>
       <TabsTrigger value="youOwe">Debts you owe</TabsTrigger>
@@ -109,11 +109,11 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
           </TableCaption>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[100px]">Name</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Due Date</TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-center">Description</TableHead>
+              <TableHead className="w-[100px] text-xs sm:text-sm">Name</TableHead>
+              <TableHead className="text-right text-xs sm:text-sm">Amount</TableHead>
+              <TableHead className="text-right text-xs sm:text-sm">Due Date</TableHead>
+              <TableHead className="text-center text-xs sm:text-sm">Status</TableHead>
+              <TableHead className="text-center text-xs sm:text-sm">Description</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -122,11 +122,11 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
               .filter(debt => debt.lender_name === sessionUser)
               .map((debt) => (
                 <TableRow key={debt.id}>
-                  <TableCell className="px-2 text-left font-semibold">{debt.borrower_name}</TableCell>
-                  <TableCell className="px-2 text-right font-semibold text-sm">{currency}{debt.amount}</TableCell>
-                  <TableCell className="px-2 text-right text-gray-800">{formatter.format(new Date(debt.due_date))}</TableCell>
+                  <TableCell className="px-2 text-left font-semibold text-xs sm:text-sm">{debt.borrower_name}</TableCell>
+                  <TableCell className="px-2 text-right font-semibold text-xs sm:text-sm">{currency}{debt.amount}</TableCell>
+                  <TableCell className="px-2 text-right text-gray-800 text-xs sm:text-sm">{formatter.format(new Date(debt.due_date))}</TableCell>
                   <TableCell className="px-2 text-right">
-                    <div className="flex justify-center">
+                    <div className="flex justify-center text-xs sm:text-sm">
                       <Select value={debt.status} onValueChange={(value) => handleStatusChange(debt, value)}>
                         <SelectTrigger className="w-auto">
                           <SelectValue />
@@ -135,19 +135,19 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
                           <SelectGroup>
                             <SelectLabel>Status</SelectLabel>
                             <SelectItem value="paid">
-                              <div className="flex items-center gap-2 text-green-500">
+                              <div className="flex items-center gap-2 text-green-500 text-xs sm:text-sm">
                                 <span className="w-3 h-3 rounded-full shadow-md bg-green-500"></span>
                                 Paid
                               </div>
                             </SelectItem>
                             <SelectItem value="unpaid">
-                              <div className="flex items-center gap-2 text-red-500">
+                              <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm">
                                 <span className="w-3 h-3 rounded-full shadow-md bg-red-500"></span>
                                 Unpaid
                               </div>
                             </SelectItem>
                             <SelectItem value="pending">
-                              <div className="flex items-center gap-2 text-orange-500">
+                              <div className="flex items-center gap-2 text-orange-500 text-xs sm:text-sm">
                                 <span className="w-3 h-3 rounded-full shadow-md bg-orange-500"></span>
                                 Pending
                               </div>
@@ -157,7 +157,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
                       </Select>
                     </div>
                   </TableCell>
-                  <TableCell className="px-2 text-center text-gray-800">{debt.description}</TableCell>
+                  <TableCell className="px-2 text-center text-gray-800 text-xs sm:text-sm">{debt.description}</TableCell>
                   <TableCell><button onClick={() => deleteDebt(debt)}><FaTrash color="red" /></button></TableCell>
                 </TableRow>
               ))}
@@ -184,11 +184,11 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
         </TableCaption>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[100px]">Name</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Due Date</TableHead>
-            <TableHead className="text-center">Status</TableHead>
-            <TableHead className="text-center">Description</TableHead>
+            <TableHead className="w-[100px] text-xs sm:text-sm">Name</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">Amount</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">Due Date</TableHead>
+            <TableHead className="text-center text-xs sm:text-sm">Status</TableHead>
+            <TableHead className="text-center text-xs sm:text-sm">Description</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -197,9 +197,9 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
             .filter(debt => debt.borrower_name === sessionUser)
             .map((debt) => (
               <TableRow key={debt.id}>
-                <TableCell className="px-2 text-left font-semibold">{debt.lender_name}</TableCell>
-                <TableCell className="px-2 text-right font-semibold text-sm">£{debt.amount}</TableCell>
-                <TableCell className="px-2 text-right text-gray-800">{formatter.format(new Date(debt.due_date))}</TableCell>
+                <TableCell className="px-2 text-left font-semibold text-xs sm:text-sm">{debt.lender_name}</TableCell>
+                <TableCell className="px-2 text-right font-semibold text-sm text-xs sm:text-sm">£{debt.amount}</TableCell>
+                <TableCell className="px-2 text-right text-gray-800 text-xs sm:text-sm">{formatter.format(new Date(debt.due_date))}</TableCell>
                 <TableCell className="px-2 text-right">
                   <div className="flex justify-center">
                     <Select value={debt.status} onValueChange={(value) => handleStatusChange(debt, value)}>
@@ -210,19 +210,19 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
                         <SelectGroup>
                           <SelectLabel>Status</SelectLabel>
                           <SelectItem value="paid">
-                            <div className="flex items-center gap-2 text-green-500">
+                            <div className="flex items-center gap-2 text-green-500 text-xs sm:text-sm">
                               <span className="w-3 h-3 rounded-full shadow-md bg-green-500"></span>
                               Paid
                             </div>
                           </SelectItem>
                           <SelectItem value="unpaid">
-                            <div className="flex items-center gap-2 text-red-500">
+                            <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm">
                               <span className="w-3 h-3 rounded-full shadow-md bg-red-500"></span>
                               Unpaid
                             </div>
                           </SelectItem>
                           <SelectItem value="pending">
-                            <div className="flex items-center gap-2 text-orange-500">
+                            <div className="flex items-center gap-2 text-orange-500 text-xs sm:text-sm">
                               <span className="w-3 h-3 rounded-full shadow-md bg-orange-500"></span>
                               Pending
                             </div>
@@ -232,7 +232,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
                     </Select>
                   </div>
                 </TableCell>
-                <TableCell className="px-2 text-center text-gray-800">{debt.description}</TableCell>
+                <TableCell className="px-2 text-center text-gray-800 text-xs sm:text-sm">{debt.description}</TableCell>
                 <TableCell><button onClick={() => deleteDebt(debt)}><FaTrash color="red" /></button></TableCell>
               </TableRow>
             ))}
