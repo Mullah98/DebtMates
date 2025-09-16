@@ -40,7 +40,10 @@ export const fetchToken = async () => {
     const userId = session?.user?.id;
     
     if (userId && token) {
-      await supabase.from('profiles').update({ fcm_token: token }).eq('id', userId);
+      await supabase
+      .from('profiles')
+      .update({ fcm_token: token })
+      .eq('id', userId);
     }
     
     return token;
