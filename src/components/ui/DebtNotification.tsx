@@ -35,7 +35,7 @@ interface Notification {
 function DebtNotification({session, onDebtAdded}: DebtNotificationProps) {
     const [notification, setNotification] = useState<Notification[]>([]);
     const [open, setOpen] = useState(false);
-    const [tab, setTab] = useState("unread")
+    const [tab, setTab] = useState("unread");
 
 const fetchUserNotifications = async () => {
     const { data: notifications } = await supabase
@@ -49,9 +49,7 @@ const fetchUserNotifications = async () => {
       setOpen(false)
       return;
     }
-
-    console.log(notifications);
-    
+        
     setNotification(notifications);
         
     if (notifications.length > 0 && notifications.some(n => !n.read)) {
@@ -62,20 +60,29 @@ const fetchUserNotifications = async () => {
 };
 
 const markAsRead = async (notification: Notification) => {
-  const { error } = await supabase.from("notifications").update({read: true}).eq("id", notification.id)
+  const { error } = await supabase
+  .from("notifications")
+  .update({read: true})
+  .eq("id", notification.id)
 
   if (error) {
     console.error("Unable to update notification");
   } else {
-    fetchUserNotifications();            
+    fetchUserNotifications();
   }
 }
 
 // Function to confirm the status of the debt payment
 const handleDebtDecision = async (notification: Notification, decision: 'paid' | 'unpaid') => {
-  await supabase.from("notifications").update({read: true}).eq("id", notification.id)
+  await supabase
+  .from("notifications")
+  .update({read: true})
+  .eq("id", notification.id)
   
-  const { error } = await supabase.from("debts").update({status: decision}).eq("id", notification.related_debt_id)
+  const { error } = await supabase
+  .from("debts")
+  .update({status: decision})
+  .eq("id", notification.related_debt_id)
 
   if (error) {
     console.error("Unable to update debt status");
@@ -88,7 +95,10 @@ const handleDebtDecision = async (notification: Notification, decision: 'paid' |
 }
 
 const deleteNotification = async (notification: Notification) => {
-  const { error } = await supabase.from("notifications").delete().eq("id", notification.id)
+  const { error } = await supabase
+  .from("notifications")
+  .delete()
+  .eq("id", notification.id)
 
   if (error) {
     console.error("Unable to delete notifications");
@@ -101,11 +111,10 @@ useEffect(() => {
     fetchUserNotifications();
 }, [])
 
-
   return (
   <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild>
-      <Button variant="outline" className=""><Bell size={40} className="" />{notification.length}</Button>
+      <Button variant="outline" className=""><Bell size={40} className="" />{notification.filter(n => !n.read).length}</Button>
     </DialogTrigger>
     <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto rounded-xl shadow-xl bg-white">
       <DialogHeader>

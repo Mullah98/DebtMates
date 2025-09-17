@@ -7,27 +7,27 @@ import { supabase } from '../../supabaseClient';
 import { useEffect, useState } from 'react';
 import DebtNotification from './ui/DebtNotification';
 import SettingsTab from './ui/SettingsTab';
-import DefaultAvatar from '../assets/default_avatar.png'
+import DefaultAvatar from '../assets/default_avatar.png';
 
 interface DashboardProps {
-  session: Session | null;
-  signOut: () => void;
+  session: Session | null
+  signOut: () => void
 }
 
 export interface User {
-  id: string;
-  friend_id?: string;
-  first_name: string;
-  last_name: string;
-  avatar_url?: string | undefined;
+  id: string
+  friend_id?: string
+  first_name: string
+  last_name: string
+  avatar_url?: string | undefined
 }
 
 function Dashboard({ session, signOut }: DashboardProps) {
   const greeting: string = `Welcome back, ${session?.user?.user_metadata?.full_name?.split(" ")[0]}`
-  const [allDebts, setAllDebts] = useState<Debt[]>([])
-  const [allUsers, setAllUsers] = useState<User[]>([])
-  const [userAvatar, setUserAvatar] = useState<string>()
-  const [currency, setCurrency] = useState<string | undefined>('£')
+  const [allDebts, setAllDebts] = useState<Debt[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [userAvatar, setUserAvatar] = useState<string>();
+  const [currency, setCurrency] = useState<string | undefined>('£');
 
   const letterVariants = {
     hidden: { opacity: 0, x: -10 },
@@ -123,7 +123,6 @@ function Dashboard({ session, signOut }: DashboardProps) {
       <div>
         <DebtTable allDebts={allDebts} onDebtAdded={fetchAllUserDebts} sessionUser={session?.user?.user_metadata?.full_name} sessionUserId={session?.user?.id} currency={currency} />
       </div>
-
     </div>
   )
 }

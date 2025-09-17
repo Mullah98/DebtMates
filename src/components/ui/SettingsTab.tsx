@@ -130,135 +130,133 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
     }
     
   return (
-    <Sheet>
-        <SheetTrigger>
-            <Settings size={20}/>
-        </SheetTrigger>
-        <SheetContent className='pt-6 flex flex-col items-center overflow-y-auto'>
-            
-            <div className='flex flex-col items-center gap-6'>
-                <SheetHeader className='mt-2 text-center w-full flex flex-col items-center'>
-                <SheetTitle className='mt-2'>Profile settings</SheetTitle>
-                <SheetDescription>Upload your profile image.</SheetDescription>
-                {status === "uploading" ? (
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
-                        <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
-                    </div>
-                ) : (
-                    <img
-                        src={userProfileIcon || DefaultAvatar}
-                        alt="profile image"
-                        className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4"
-                    />
+  <Sheet>
+    <SheetTrigger>
+        <Settings size={20}/>
+    </SheetTrigger>
+    
+    <SheetContent className='pt-6 flex flex-col items-center overflow-y-auto'>
+        <div className='flex flex-col items-center gap-6'>
+            <SheetHeader className='mt-2 text-center w-full flex flex-col items-center'>
+            <SheetTitle className='mt-2'>Profile settings</SheetTitle>
+            <SheetDescription>Upload your profile image.</SheetDescription>
+            {status === "uploading" ? (
+                <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
+                    <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
+                </div>
+            ) : (
+                <img
+                    src={userProfileIcon || DefaultAvatar}
+                    alt="profile image"
+                    className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4"
+                />
+            )}
+
+            <div className="flex flex-col items-center w-full mt-4">
+                <label
+                    htmlFor="avatar-upload"
+                    className="text-sm cursor-pointer px-4 py-2 bg-orange-400 text-white rounded-md shadow hover:bg-orange-500"
+                >
+                    Choose File
+                </label>
+                <input
+                    id="avatar-upload"
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                />
+                {file && ( 
+                    <p className="text-sm text-gray-600 max-w-[300px] truncate">
+                        Selected: {file.name}
+                    </p>
                 )}
 
-                <div className="flex flex-col items-center w-full mt-4">
-                    <label
-                        htmlFor="avatar-upload"
-                        className="text-sm cursor-pointer px-4 py-2 bg-orange-400 text-white rounded-md shadow hover:bg-orange-500"
-                    >
-                        Choose File
-                    </label>
-                    <input
-                        id="avatar-upload"
-                        type="file"
-                        onChange={handleFileChange}
-                        accept="image/*"
-                        className="hidden"
-                    />
-                    {file && ( 
-                        <p className="text-sm text-gray-600 max-w-[300px] truncate">
-                            Selected: {file.name}
-                        </p>
-                    )}
+                {file && ( 
+                    <button onClick={handleFileUpload} disabled={status === 'uploading'}>
+                        {status === 'uploading' ? "Uploading.." : "Upload image"}
+                    </button>
+                )}
+            </div>
+            </SheetHeader>
+        </div>
+            
+        <div className='flex flex-col items-center gap-4 border-t border-gray-200'>
+            <SheetHeader className='mt-4 text-center'>
+                <SheetTitle>Friends list settings</SheetTitle>
+                <SheetDescription>Add or remove friends</SheetDescription>
+            </SheetHeader>
 
-                    {file && ( 
-                        <button onClick={handleFileUpload} disabled={status === 'uploading'}>
-                            {status === 'uploading' ? "Uploading.." : "Upload image"}
-                        </button>
-                    )}
-                </div>
-                </SheetHeader>
+            <Input className="w-auto sm:w-82" placeholder='Search for friends...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <Command className='rounded-md w-64 sm:w-82 max-w-md h-auto text-sm sm:text-base'>
+                {searchTerm && searchTerm.length > 2 && (
+                <CommandList className='max-h-60 overflow-y-auto'>
+                    {filteredUsers?.map((user) => (
+                        <CommandItem key={user.id} className='flex justify-between items-center w-full px-2 sm:px-4 py-1 sm:py-2 gap-2 sm:gap-4 text-sm'>
+                            <div className='flex items-center gap-2'>
+                                <img src={user.avatar_url || DefaultAvatar} alt={user.first_name} className='w-12 h-12 rounded-full object-cover'/>
+                                <span>{user.first_name} {user.last_name}</span>
+                            </div>
+                            <Button size='sm' onClick={() => addFriend(user)} disabled={friendsList.some(friend => friend.friend_id === user.id)}>
+                                Add friend
+                            </Button>
+                        </CommandItem>
+                    ))}
+                </CommandList>
+                )}
+            </Command>
+
+        <div className='mt-2 w-full max-w-md'>
+            <div className='flex items-center justify-center cursor-pointer gap-2' onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <span className='text-base font-semibold my-1 flex gap-2'>
+                    Your friends list 
+                    <span className='inline-flex items-center justify-center px-2 text-sm font-medium text-white bg-orange-400 rounded-full'>
+                        {friendsList.length}
+                    </span>
+                </span>
+                {dropdownOpen ? (
+                    <IoIosArrowDropupCircle color='orange' />
+                ) : (
+                    <IoIosArrowDropdownCircle color='orange' />
+                )}
             </div>
             
-            <div className='flex flex-col items-center gap-4 border-t border-gray-200'>
-                <SheetHeader className='mt-4 text-center'>
-                    <SheetTitle>Friends list settings</SheetTitle>
-                    <SheetDescription>Add or remove friends</SheetDescription>
-                </SheetHeader>
-
-                <Input className="w-auto sm:w-82" placeholder='Search for friends...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                <Command className='rounded-md w-64 sm:w-82 max-w-md h-auto text-sm sm:text-base'>
-                    {searchTerm && searchTerm.length > 2 && (
-                    <CommandList className='max-h-60 overflow-y-auto'>
-                        {filteredUsers?.map((user) => (
-                            <CommandItem key={user.id} className='flex justify-between items-center w-full px-2 sm:px-4 py-1 sm:py-2 gap-2 sm:gap-4 text-sm'>
+            <div className={`overflow-hidden transition-[max-height] duration-300 ease-in-out`} style={{ maxHeight: dropdownOpen ? '15rem' : '0' }}>
+            <Command className='text-center rounded-md border-none w-full h-auto'>
+                <CommandList className='w-full'>
+                    {friendsList.length > 0 ? (
+                        friendsList.map((friend) => (
+                            <CommandItem key={friend.friend_id} className='flex justify-between items-center px-4 py-2 gap-4'>
                                 <div className='flex items-center gap-2'>
-                                    <img src={user.avatar_url || DefaultAvatar} alt={user.first_name} className='w-12 h-12 rounded-full object-cover'/>
-                                    <span>{user.first_name} {user.last_name}</span>
+                                    <img src={friend.avatar_url || DefaultAvatar} alt={friend.first_name} className='w-12 h-12 rounded-full object-cover' />
+                                    <span>{friend.first_name} {friend.last_name}</span>
                                 </div>
-                                <Button size='sm' onClick={() => addFriend(user)} disabled={friendsList.some(friend => friend.friend_id === user.id)}>
-                                    Add friend
-                                </Button>
+                                    <Button size='sm' onClick={() => deleteFriend(friend)} title='Remove friend from list'><FaMinusCircle color='red' /></Button>
                             </CommandItem>
-                        ))}
-                    </CommandList>
+                        ))
+                    ) : (
+                        <p className='text-sm text-gray-500 px-4 py-3'>No friends added yet.</p>
                     )}
-                </Command>
-    
-                <div className='mt-2 w-full max-w-md'>
-                    <div className='flex items-center justify-center cursor-pointer gap-2' onClick={() => setDropdownOpen(!dropdownOpen)}>
-                        <span className='text-base font-semibold my-1 flex gap-2'>
-                            Your friends list 
-                            <span className='inline-flex items-center justify-center px-2 text-sm font-medium text-white bg-orange-400 rounded-full'>
-                                {friendsList.length}
-                            </span>
-                        </span>
-                        {dropdownOpen ? (
-                            <IoIosArrowDropupCircle color='orange' />
-                        ) : (
-                            <IoIosArrowDropdownCircle color='orange' />
-                        )}
-                    </div>
-                    
-                    <div className={`overflow-hidden transition-[max-height] duration-300 ease-in-out`} style={{ maxHeight: dropdownOpen ? '15rem' : '0' }}>
-                    <Command className='text-center rounded-md border-none w-full h-auto'>
-                        <CommandList className='w-full'>
-                            {friendsList.length > 0 ? (
-                                friendsList.map((friend) => (
-                                    <CommandItem key={friend.friend_id} className='flex justify-between items-center px-4 py-2 gap-4'>
-                                        <div className='flex items-center gap-2'>
-                                            <img src={friend.avatar_url || DefaultAvatar} alt={friend.first_name} className='w-12 h-12 rounded-full object-cover' />
-                                            <span>{friend.first_name} {friend.last_name}</span>
-                                        </div>
-                                            <Button size='sm' onClick={() => deleteFriend(friend)} title='Remove friend from list'><FaMinusCircle color='red' /></Button>
-                                    </CommandItem>
-                                ))
-                            ) : (
-                                <p className='text-sm text-gray-500 px-4 py-3'>No friends added yet.</p>
-                            )}
-                        </CommandList>
-                    </Command>
-                    </div>
-                </div>
-
+                </CommandList>
+            </Command>
             </div>
+        </div>
+        </div>
 
-            <div className='flex flex-col items-center gap-4 border-t border-gray-200 pt-4'>
-                <SheetHeader className='mt-6 text-center'>
-                    <SheetTitle>Preference</SheetTitle>
-                    <SheetDescription>Update your preference settings</SheetDescription>
-                </SheetHeader>
-                <Tabs value={currency} onValueChange={onCurrencyChange}>
-                    <TabsList className='flex space-x-2 mb-2'>
-                        <TabsTrigger value='$' className='px-4 py-2 rounded border border-gray-200 data-[state=active]:border-orange-500'>$</TabsTrigger>
-                        <TabsTrigger value='£' className='px-4 py-2 rounded border border-gray-200 data-[state=active]:border-orange-500'>£</TabsTrigger>
-                        <TabsTrigger value='€' className='px-4 py-2 rounded border border-gray-200 data-[state=active]:border-orange-500'>€</TabsTrigger>
-                    </TabsList>
-                </Tabs>
-            </div>
-
-        </SheetContent>
+        <div className='flex flex-col items-center gap-4 border-t border-gray-200 pt-4'>
+            <SheetHeader className='mt-6 text-center'>
+                <SheetTitle>Preference</SheetTitle>
+                <SheetDescription>Update your preference settings</SheetDescription>
+            </SheetHeader>
+            <Tabs value={currency} onValueChange={onCurrencyChange}>
+                <TabsList className='flex space-x-2 mb-2'>
+                    <TabsTrigger value='$' className='px-4 py-2 rounded border border-gray-200 data-[state=active]:border-orange-500'>$</TabsTrigger>
+                    <TabsTrigger value='£' className='px-4 py-2 rounded border border-gray-200 data-[state=active]:border-orange-500'>£</TabsTrigger>
+                    <TabsTrigger value='€' className='px-4 py-2 rounded border border-gray-200 data-[state=active]:border-orange-500'>€</TabsTrigger>
+                </TabsList>
+            </Tabs>
+        </div>
+    </SheetContent>
     </Sheet>
   )
 }

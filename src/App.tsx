@@ -1,42 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { supabase } from '../supabaseClient.ts';
 import type { Session } from '@supabase/supabase-js';
 import LoginPage from './components/LoginPage.tsx';
 import Dashboard from './components/Dashboard.tsx';
-import { fetchToken, messaging } from '../firebase.ts';
-import { onMessage } from 'firebase/messaging';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 import { Toaster } from 'sonner';
-import useFcmToken from '../hooks/useFcmToken.tsx';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null); // Session can either be a Supabase Session object(when logged in) or null (when logged out)
-  const [loading, setLoading] = useState(true)
-  const isTokenGenerated = useRef(false);
-
-  // const { token, notificationPermissionStatus } = useFcmToken();
+  const [loading, setLoading] = useState(true);
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data: { session } }) => {
     setSession(session);
     setLoading(false);
-
-    if (session?.user && !isTokenGenerated.current) {
-      fetchToken().then((token) => {
-        if (token) {
-          console.log("Token saved successfully!")
-        }
-      });
-      messaging().then((msg) => {
-        if (msg) {
-          onMessage(msg, (payload) => {
-            console.log("payload:", payload);
-          });
-        }
-      });
-      isTokenGenerated.current = true;
-    }
 
     if (session?.user) {
       supabase
@@ -69,7 +47,7 @@ useEffect(() => {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session) {
-      console.log('no session')
+      return;
     } else {
       await supabase.auth.signOut();
       setSession(null)

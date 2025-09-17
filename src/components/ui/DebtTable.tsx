@@ -6,25 +6,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/shadcn-ui/table"
+} from "@/components/shadcn-ui/table";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/shadcn-ui/tabs"
-import { motion } from "framer-motion"
-import { Select, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectValue } from "@/components/shadcn-ui/select"
-import type { Debt } from "./DebtForm"
-import { supabase } from "../../../supabaseClient"
+} from "@/components/shadcn-ui/tabs";
+import { motion } from "framer-motion";
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectValue } from "@/components/shadcn-ui/select";
+import type { Debt } from "./DebtForm";
+import { supabase } from "../../../supabaseClient";
 import { FaTrash } from 'react-icons/fa';
 
 interface DebtTableProps {
-  allDebts: Debt[];
-  onDebtAdded: () => void;
-  sessionUser: string | undefined;
-  sessionUserId: string | undefined;
-  currency: string | undefined;
+  allDebts: Debt[]
+  onDebtAdded: () => void
+  sessionUser: string | undefined
+  sessionUserId: string | undefined
+  currency: string | undefined
 }
 
 function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency }: DebtTableProps) {
@@ -53,19 +53,20 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
     if (sessionUserId === debt.borrower_id && value === "paid") {
       await updateDebt(debt, "pending");
 
-      const { error } = await supabase.from("notifications").insert({
-        user_id: debt.lender_id,
-        title: "Confirm debt status",
-        body: `${debt.borrower_name} marked this debt as paid. Please confirm:`,
-        read: false,
-        type: "debt_status_update",
-        related_debt_id: debt.id
-      });
+      if (debt.lender_id) {
+        const { error } = await supabase.from("notifications").insert([{
+          user_id: debt.lender_id,
+          title: "Confirm debt status",
+          body: `${debt.borrower_name} marked this debt as paid. Please confirm:`,
+          read: false,
+          type: "debt_status_update",
+          related_debt_id: debt.id
+        }]);
 
-      if (error) {
-        console.log('error updaing debt status', error);
+        if (error) {
+          console.log('error updating debt status', error);
+        }
       }
-
     } else {
       await updateDebt(debt, value)
     }
@@ -83,7 +84,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
     } else {      
       onDebtAdded();      
     }
-  }
+  }  
   
   return (
   <Tabs defaultValue="owedToYou" className="w-full mt-6 text-sm sm:text-base">
