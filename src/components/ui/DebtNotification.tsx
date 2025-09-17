@@ -2,15 +2,7 @@ import { supabase } from "../../../supabaseClient"
 import type { Session } from '@supabase/supabase-js';
 import { useEffect, useState } from "react";
 import { Button } from "../shadcn-ui/button";
-import {    
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,  } from "../shadcn-ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../shadcn-ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../shadcn-ui/tabs";
 import { motion } from "framer-motion";
 import { CircleCheckBig, Trash2, Bell } from 'lucide-react';
@@ -66,7 +58,7 @@ const markAsRead = async (notification: Notification) => {
   .eq("id", notification.id)
 
   if (error) {
-    console.error("Unable to update notification");
+    console.error("Unable to update notification", error);
   } else {
     fetchUserNotifications();
   }
@@ -85,7 +77,7 @@ const handleDebtDecision = async (notification: Notification, decision: 'paid' |
   .eq("id", notification.related_debt_id)
 
   if (error) {
-    console.error("Unable to update debt status");
+    console.error("Unable to update debt status", error);
     toast.error(`Unable to update debt as ${decision}`)
   } else {
     fetchUserNotifications();

@@ -1,23 +1,11 @@
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/shadcn-ui/table";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/shadcn-ui/tabs";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn-ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn-ui/tabs";
 import { motion } from "framer-motion";
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectValue } from "@/components/shadcn-ui/select";
 import type { Debt } from "./DebtForm";
 import { supabase } from "../../../supabaseClient";
 import { FaTrash } from 'react-icons/fa';
+import { toast } from "sonner";
 
 interface DebtTableProps {
   allDebts: Debt[]
@@ -42,9 +30,10 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
     .eq("id", debt.id)
 
     if (error) {
-      console.error("Unable to update the debt status", error)
+      console.error("Unable to update the debt status", error);
+      toast.error("Unable to update debt");
     } else {
-      onDebtAdded()
+      onDebtAdded();
     }
   }
 
@@ -65,6 +54,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
 
         if (error) {
           console.log('error updating debt status', error);
+          toast.error("Unable to update debt. Please try again.")
         }
       }
     } else {
@@ -81,6 +71,7 @@ function DebtTable({ allDebts, onDebtAdded, sessionUser, sessionUserId, currency
 
     if (error) {
       console.error('Could not delete debt', error)
+      toast.error("Unable to delete debt. Please try again.")
     } else {      
       onDebtAdded();      
     }

@@ -50,7 +50,6 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
     },
   })
 
-  // Add new debt entry 
   const addNewDebt = async (newDebt: Debt) => {
     if (!session?.user) return;
 
@@ -61,7 +60,8 @@ function DebtForm({ session, onDebtAdded, allUsers, currency }: DebtFormProps) {
     }]);    
     
     if (error) {
-      console.error("Error adding new debt", error)
+      console.error("Error adding new debt", error);
+      toast.error("Something went wrong while adding the debt. Please try again.")
       return;
     }
     

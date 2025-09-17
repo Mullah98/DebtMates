@@ -60,12 +60,16 @@ function Dashboard({ session, signOut }: DashboardProps) {
     if (data && !error) {
       setAllUsers(data)
     } else {
-      console.error("unable to retrieve all user profiles", error)
+      console.error("Unable to retrieve all user profiles", error)
     }
   }
 
   const fetchCurrentUserProfile = async () => {
-    const { data, error } = await supabase.from("profiles").select("avatar_url").eq("id", session?.user?.id).single();
+    const { data, error } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", session?.user?.id)
+    .single();
     
     if (data && !error) {
       setUserAvatar(data.avatar_url)      

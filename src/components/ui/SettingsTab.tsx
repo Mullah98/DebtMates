@@ -41,7 +41,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
     useEffect(() => {
         setUserProfileIcon(profileIcon),
         fetchAllUsers()
-    }, [profileIcon])
+    }, [profileIcon]);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -58,29 +58,36 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
         // Generate a unique file name to avoid conflicts
         const fileName = `${uuidv4()}-${file.name}`;
 
-        const { error } = await supabase.storage.from("avatars").upload(`${userId}/${fileName}`, file);
+        const { error } = await supabase.storage
+        .from("avatars")
+        .upload(`${userId}/${fileName}`, file);
 
         if (error) {
-            console.error(error);
+            console.error('Error uploading file' ,error);
             setStatus("error");
-            toast.error("upload failed");
+            toast.error("Upload failed. Please try again.");
             return;
         }
 
-        const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(`${userId}/${fileName}`);        
+        const { data: publicUrl } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(`${userId}/${fileName}`);        
         
-        const { error: updateError } = await supabase.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", userId);
+        const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl.publicUrl })
+        .eq("id", userId);
 
         if (updateError) {
             console.error(updateError);
             setStatus("error");
-            toast.error("failed to save avatar");
+            toast.error("Failed to save avatar.");
             return;
         }
         
         setUserProfileIcon(publicUrl.publicUrl);
         setStatus("success");        
-        toast.success("avatar updated!");
+        toast.success("Avatar successfully updated!");
         setFile(null); // Clear the file and status once the new profile avatar is updated
         setTimeout(() => setStatus('idle'), 3000);
         onAvatarUpdated?.(); // Notify Dashboard component the avatar was updated
@@ -95,7 +102,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
         if (data && !error) {
         setResults(data)
         } else {
-        console.error("unable to retrieve all user profiles", error)
+        console.error("Unable to retrieve all user profiles", error)
         }
     }
 
@@ -104,13 +111,19 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
     )
 
     const addFriend = async (friend: User) => {
-        const { error } = await supabase.from("friends")
+        const { error } = await supabase
+        .from("friends")
         .insert([{
-            user_id: session?.user?.id, friend_id: friend?.id, first_name: friend.first_name, last_name: friend.last_name, avatar_url: friend.avatar_url,
-        }])
+            user_id: session?.user?.id, 
+            friend_id: friend?.id, 
+            first_name: friend.first_name, 
+            last_name: friend.last_name, 
+            avatar_url: friend.avatar_url,
+        }]);
         
         if (error) {
             console.error('Error adding friend to list', error);
+            toast.error("Unable to add new friend. Please try again.")
         } else {
             refreshFriendsList();
             setSearchTerm("")
@@ -119,12 +132,17 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
     }
 
     const deleteFriend = async (friend: User) => {
-        const { error } = await supabase.from("friends").delete().eq("user_id", session?.user?.id).eq("friend_id", friend.friend_id)
+        const { error } = await supabase
+        .from("friends")
+        .delete()
+        .eq("user_id", session?.user?.id)
+        .eq("friend_id", friend.friend_id)
 
         if (error) {
-            console.error("error deleting friend", error)
+            console.error("Error deleting friend", error)
+            toast.error("Unable to delete friend. Please try again.")
         } else {
-            toast.error("Friend successfully removed!");
+            toast.success("Friend successfully removed!");
             refreshFriendsList();
         }
     }

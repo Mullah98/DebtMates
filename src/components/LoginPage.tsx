@@ -14,7 +14,7 @@ function LoginPage() {
         DebtMates
       </h1>
       <p className="text-lg text-gray-600 max-w-md mx-auto">
-        Request. Cofirm. Settle
+        Request. Confirm. Settle.
       </p>
     </div>
     <Auth

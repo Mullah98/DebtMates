@@ -3,14 +3,7 @@ import { TrendingUp } from "lucide-react";
 import { Pie, PieChart } from "recharts";
 import type { ChartConfig } from "@/components/shadcn-ui/chart";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/shadcn-ui/chart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/shadcn-ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/shadcn-ui/card";
 import type { Debt } from "./DebtForm";
 
 interface DebtChartProps {
