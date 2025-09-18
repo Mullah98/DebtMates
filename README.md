@@ -2,10 +2,10 @@
 DebtMates helps you keep track of debts with friends and family, notifying users and helping settle payments easily.
 
 # Tech Stack
-- TypeScript
-- React
-- Tailwind CSS
-- Supabase
+- `TypeScript`
+- `React`
+- `Tailwind CSS`
+- `Supabase`
 
 # Features
 - Create new debts and assign them to users
@@ -19,19 +19,28 @@ DebtMates helps you keep track of debts with friends and family, notifying users
 ```bash
 git clone <repository link>
 cd DebtMates
+```
 
 2. `Install dependencies:`
+```bash
 npm install
+```
 
 3. `Setup the environment variables:`
 Create an .env file with your Supabase credentials:
+```bash
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+You can follow the official guide to get your Supabase key [here](https://supabase.com/docs/guides/getting-started).
 
 4. `Run the development server:`
+```bash
 npm run dev
+```
 
 5. `View the app:`
+```bash
 Open http://localhost:5173 in your browser.
 ```
 
@@ -42,5 +51,6 @@ Open http://localhost:5173 in your browser.
 - `/public` - Static assets (images, icons)
 - `supabaseClient.ts` - Supabase client setup
 
-# Future improvements
+# Future additions
 - Add WhatsApp or mobile push notifications for real-time alerts
+- Link a bank app or payment service to allow users to pay debts directly from the app
