@@ -10,30 +10,27 @@ import { Toaster } from 'sonner';
 function App() {
   const [session, setSession] = useState<Session | null>(null); // Session can either be a Supabase Session object(when logged in) or null (when logged out)
   const [loading, setLoading] = useState(true);
+  const [needsName, setNeedsName] = useState(false);  
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data: { session } }) => {
     setSession(session);
     setLoading(false);
 
+
     if (session?.user) {
-      supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', session.user.id)
-        .maybeSingle()
-        .then(({ data: existing_profile, error }) => {
-          if (!existing_profile && !error) {
-            supabase.from('profiles').insert({
-              id: session.user.id,
-              first_name: session.user.user_metadata.full_name.split(' ')[0] || '',
-              last_name: session.user.user_metadata.full_name.split(' ')[1] || '',
-            }).then(({ error: insertError }) => {
-              if (insertError) console.error('Unable to add profile', insertError);
-            });
-          }
-        });
-    }    
+      const fullName = session?.user?.user_metadata?.full_name ?? '';
+      if (!fullName) {
+        setNeedsName(true);
+      } else {
+        const [fName, lName] = fullName.split(' ');
+        supabase.from("profiles").upsert({
+          id: session?.user?.id,
+          first_name: fName || '',
+          last_name: lName || '',
+        })
+      }
+    }
   });
 
   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -42,6 +39,12 @@ useEffect(() => {
 
   return () => subscription.unsubscribe();
 }, []);
+
+useEffect(() => {
+  if (session?.user && !session?.user?.user_metadata.full_name) {
+    setNeedsName(true);
+  }
+}, [session])
 
   const signOut = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -60,14 +63,20 @@ useEffect(() => {
     )
   }
 
-  return !session ? (
-    <LoginPage />
-  ) : (
+  if (needsName && session) {
+    return <LoginPage needsName={needsName} session={session} onSave={() => setNeedsName(false)} />
+  }
+  
+  if (!session) {
+    return <LoginPage needsName={false} session={null} onSave={() => {}} />
+  }
+
+  return (
     <ErrorBoundary>
       <Toaster position='top-right'/>
     <Dashboard session={session} signOut={signOut}/>
     </ErrorBoundary>
-  )}
-
+  );
+}
 
 export default App
