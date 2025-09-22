@@ -17,7 +17,6 @@ useEffect(() => {
     setSession(session);
     setLoading(false);
 
-
     if (session?.user) {
       const fullName = session?.user?.user_metadata?.full_name ?? '';
       if (!fullName) {

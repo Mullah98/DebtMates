@@ -44,6 +44,11 @@ npm run dev
 Open http://localhost:5173 in your browser.
 ```
 
+# Test Accounts
+If you'd like to explore the app quickly, you can use these test accounts:
+- **Email:** owen_hall@testing.com | **Password:** Test123
+- **Email:** jesse_lang@testing.com | **Password:** Test123
+
 # Project structure
 - `/src/components` - Reusable UI components
 - `/src/hooks` - Custom React hooks

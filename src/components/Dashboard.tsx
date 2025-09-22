@@ -107,7 +107,6 @@ function Dashboard({ session, signOut }: DashboardProps) {
         <div className='text-sm sm:text-lg flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 flex-shrink-0 mt-4 sm:mt-0'>
           <DebtNotification session={session} onDebtAdded={fetchAllUserDebts} />
           <SettingsTab 
-          userId={session?.user.id} 
           profileIcon={userAvatar} 
           onAvatarUpdated={fetchCurrentUserProfile} 
           currency={currency} 

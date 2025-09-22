@@ -19,7 +19,6 @@ import { IoIosArrowDropupCircle, IoIosArrowDropdownCircle } from "react-icons/io
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 interface SettingsTabProps {
-    userId: string | undefined
     profileIcon: string | undefined
     onAvatarUpdated?: () => void
     currency: string | undefined
@@ -29,7 +28,7 @@ interface SettingsTabProps {
     refreshFriendsList: () => void
 }
 
-function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, session, friendsList, refreshFriendsList }: SettingsTabProps) {
+function SettingsTab( { profileIcon, onAvatarUpdated, onCurrencyChange, session, friendsList, refreshFriendsList }: SettingsTabProps) {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
     const [userProfileIcon, setUserProfileIcon] = useState<string | undefined>(profileIcon);
@@ -37,7 +36,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [results, setResults] = useState<User[] | null>([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    
+
     useEffect(() => {
         setUserProfileIcon(profileIcon),
         fetchAllUsers()
@@ -60,7 +59,7 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
 
         const { error } = await supabase.storage
         .from("avatars")
-        .upload(`${userId}/${fileName}`, file);
+        .upload(`${session?.user?.id}/${fileName}`, file);
 
         if (error) {
             console.error('Error uploading file' ,error);
@@ -71,12 +70,12 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
 
         const { data: publicUrl } = supabase.storage
         .from("avatars")
-        .getPublicUrl(`${userId}/${fileName}`);        
+        .getPublicUrl(`${session?.user.id}/${fileName}`);        
         
         const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl.publicUrl })
-        .eq("id", userId);
+        .eq("id", session?.user.id);
 
         if (updateError) {
             console.error(updateError);
@@ -158,17 +157,17 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
             <SheetHeader className='mt-2 text-center w-full flex flex-col items-center'>
             <SheetTitle className='mt-2'>Profile settings</SheetTitle>
             <SheetDescription>Upload your profile image.</SheetDescription>
-            {status === "uploading" ? (
-                <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
-                    <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
-                </div>
-            ) : (
-                <img
-                    src={userProfileIcon || DefaultAvatar}
-                    alt="profile image"
-                    className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4"
-                />
-            )}
+                {status === "uploading" ? (
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center rounded-full border border-gray-300">
+                        <span className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></span>
+                    </div>
+                ) : (
+                    <img
+                        src={userProfileIcon || DefaultAvatar}
+                        alt="profile image"
+                        className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover mt-4"
+                    />
+                )}
 
             <div className="flex flex-col items-center w-full mt-4">
                 <label
@@ -185,16 +184,16 @@ function SettingsTab( { userId, profileIcon, onAvatarUpdated, onCurrencyChange, 
                     className="hidden"
                 />
                 {file && ( 
-                    <p className="text-sm text-gray-600 max-w-[300px] truncate">
-                        Selected: {file.name}
-                    </p>
+                    <div className='flex flex-col items-center mt-2'>
+                        <p className="text-sm text-gray-600 max-w-[300px] truncate mt-2">
+                            Selected: {file.name}
+                        </p>
+                        <button onClick={handleFileUpload} disabled={status === 'uploading'}>
+                            {status === 'uploading' ? "Uploading.." : "Upload image"}
+                        </button>
+                    </div>
                 )}
 
-                {file && ( 
-                    <button onClick={handleFileUpload} disabled={status === 'uploading'}>
-                        {status === 'uploading' ? "Uploading.." : "Upload image"}
-                    </button>
-                )}
             </div>
             </SheetHeader>
         </div>
